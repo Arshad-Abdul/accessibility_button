@@ -7,29 +7,29 @@ Reusable accessibility toolbar for websites with a one-line embed option. This r
 Add this line to any website:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button/accessibility-toolbar.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@9475063c69f1c2e9cd1b461618619a5c8038c969/accessibility-toolbar.js"></script>
 ```
 
 If you specifically want a one-line JavaScript loader instead of a direct script tag, use:
 
 ```html
-<script>!function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button/accessibility-toolbar.js';document.head.appendChild(s)}();</script>
+<script>!function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@9475063c69f1c2e9cd1b461618619a5c8038c969/accessibility-toolbar.js';document.head.appendChild(s)}();</script>
 ```
 
 If jsDelivr is blocked on the target site, this fallback also serves the same file:
 
 ```html
-<script src="https://rawcdn.githack.com/Arshad-Abdul/accessibility_button/main/accessibility-toolbar.js"></script>
+<script src="https://rawcdn.githack.com/Arshad-Abdul/accessibility_button/9475063c69f1c2e9cd1b461618619a5c8038c969/accessibility-toolbar.js"></script>
 ```
 
-For production use, prefer a tagged release or a commit hash so the embed stays stable.
+These example URLs are pinned to the current published commit so they bypass stale branch-level CDN cache. Update the hash when you publish a new version.
 
 ## One-Line Customization
 
 You can keep it to one line and still customize the widget with data attributes:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button/accessibility-toolbar.js" data-position="bottom-right" data-accent="#0f766e" data-storage-key="site-a11y" data-reading-band-size="150"></script>
+<script src="https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@9475063c69f1c2e9cd1b461618619a5c8038c969/accessibility-toolbar.js" data-position="bottom-right" data-accent="#0f766e" data-storage-key="site-a11y" data-reading-band-size="150"></script>
 ```
 
 Supported attributes:
@@ -74,9 +74,9 @@ Then open `http://localhost:8000` in your browser.
 
 ## Dependencies
 
-The embeddable script has no Font Awesome dependency. It loads OpenDyslexic only when the dyslexia-friendly font option is enabled.
+The embeddable script loads Font Awesome for the toolbar icons and loads OpenDyslexic only when the dyslexia-friendly font option is enabled.
 
-The demo page still includes these external stylesheets:
+The demo page also includes these external stylesheets:
 
 - Font Awesome 4.7.0
 - `@fontsource/opendyslexic`
