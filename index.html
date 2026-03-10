@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Reusable Accessibility Toolbar - AIDL 2026 Symposium - Complete accessibility solution for websites">
+  <meta name="keywords" content="accessibility, a11y, web accessibility, WCAG, inclusive design, AIDL 2026, assistive technology, font size, contrast, dark mode">
+  <meta name="author" content="Arshad Abdul">
+  <title>Accessibility Toolbar - Reusable Code</title>
+  
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/@fontsource/opendyslexic/index.css" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      transition: all 0.3s ease;
+      --reading-y: 50vh;
+      --reading-band-size: 130px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .header {
+      background: #2563eb;
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 1.1em;
+      opacity: 0.95;
+    }
+
+    .content {
+      padding: 40px;
+    }
+
+    .demo-section {
+      background: #f8f9fa;
+      border-left: 4px solid #2563eb;
+      padding: 25px;
+      margin-bottom: 30px;
+      border-radius: 5px;
+    }
+
+    .demo-section h2 {
+      color: #1d4ed8;
+      margin-bottom: 15px;
+    }
+
+    .demo-box {
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      border: 2px dashed #2563eb;
+      margin-top: 15px;
+    }
+
+    .demo-box p {
+      margin: 10px 0;
+    }
+
+    .instructions {
+      margin: 30px 0;
+    }
+
+    .instructions h2 {
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #2563eb;
+    }
+
+    .instructions ol {
+      margin-left: 20px;
+    }
+
+    .instructions li {
+      margin: 15px 0;
+      line-height: 1.8;
+    }
+
+    .code-section {
+      margin: 30px 0;
+    }
+
+    .code-section h3 {
+      color: #1d4ed8;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .code-block {
+      position: relative;
+      margin-bottom: 30px;
+    }
+
+    .copy-button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .copy-button:hover {
+      background: #1d4ed8;
+      transform: translateY(-2px);
+    }
+
+    .copy-button.copied {
+      background: #28a745;
+    }
+
+    pre {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 20px;
+      border-radius: 5px;
+      overflow-x: auto;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    code {
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .note {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+
+    .note strong {
+      color: #856404;
+    }
+
+    /* ACCESSIBILITY TOOLBAR STYLES */
+    .accessibility-button {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 60px;
+      height: 60px;
+      background: #2563eb;
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      padding: 0;
+    }
+
+    .accessibility-button:hover {
+      transform: scale(1.1) rotate(90deg);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+    }
+
+    .accessibility-button:active {
+      transform: scale(0.95);
+    }
+
+    .accessibility-menu {
+      position: fixed;
+      bottom: 90px;
+      left: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      padding: 20px;
+      width: 280px;
+      display: none;
+      z-index: 999;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .accessibility-menu.active {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(-20px);
+      }
+    }
+
+    .menu-header {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1d4ed8;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #2563eb;
+    }
+
+    .menu-signature {
+      margin: 8px 0 12px;
+      text-align: center;
+      font-size: 12px;
+      color: #475569;
+    }
+
+    .menu-item {
+      margin: 12px 0;
+      padding: 10px;
+      border-radius: 5px;
+      transition: background 0.2s;
+    }
+
+    .menu-item:hover {
+      background: #f8f9fa;
+    }
+
+    .menu-item label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .menu-item i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+      color: #1d4ed8;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 24px;
+      background: #ccc;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle-switch.active {
+      background: #2563eb;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: left 0.3s;
+    }
+
+    .toggle-switch.active::after {
+      left: 28px;
+    }
+
+    .font-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .font-btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .font-btn:hover {
+      background: #1d4ed8;
+      transform: scale(1.05);
+    }
+
+    .font-size-display {
+      font-weight: bold;
+      color: #1d4ed8;
+      min-width: 50px;
+      text-align: center;
+    }
+
+    .reset-btn {
+      width: 100%;
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 15px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .reset-btn:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+
+    /* Accessibility Mode Styles */
+    body.high-contrast {
+      background: black !important;
+    }
+
+    body.high-contrast .container {
+      background: #000 !important;
+      color: #fff !important;
+      border: 3px solid #fff !important;
+    }
+
+    body.high-contrast .header {
+      background: #000 !important;
+      border-bottom: 3px solid #fff !important;
+    }
+
+    body.high-contrast .demo-section,
+    body.high-contrast .demo-box,
+    body.high-contrast .note {
+      background: #000 !important;
+      color: #fff !important;
+      border-color: #fff !important;
+    }
+
+    body.high-contrast pre {
+      background: #000 !important;
+      color: #fff !important;
+      border: 2px solid #fff !important;
+    }
+
+    body.dark-mode {
+      background: #1a1a1a !important;
+    }
+
+    body.dark-mode .container {
+      background: #111827 !important;
+      color: #fff !important;
+    }
+
+    body.dark-mode .container * {
+      color: #fff !important;
+    }
+
+    body.dark-mode .header {
+      background: #0f172a !important;
+    }
+
+    body.dark-mode .demo-section,
+    body.dark-mode .demo-box,
+    body.dark-mode .note,
+    body.dark-mode .feature-list {
+      background: #1f2937 !important;
+      color: #fff !important;
+      border-color: #374151 !important;
+    }
+
+    body.dark-mode a {
+      color: #fff !important;
+    }
+
+    body.dark-mode .accessibility-menu {
+      background: #111827 !important;
+      color: #fff !important;
+      border: 1px solid #374151;
+    }
+
+    body.dark-mode .menu-item:hover {
+      background: #1f2937 !important;
+    }
+
+    body.dark-mode .menu-header,
+    body.dark-mode .menu-item label,
+    body.dark-mode .menu-item span,
+    body.dark-mode .font-size-display {
+      color: #fff !important;
+    }
+
+    body.dark-mode .menu-item i {
+      color: #fff !important;
+    }
+
+    body.dark-mode .menu-signature {
+      color: #fff !important;
+    }
+
+    body.dark-mode .font-btn {
+      background: #2563eb !important;
+      color: #fff !important;
+    }
+
+    body.dark-mode .font-btn:hover {
+      background: #1d4ed8 !important;
+    }
+
+    body.dark-mode .toggle-switch {
+      background: #4b5563;
+    }
+
+    body.low-vision {
+      background: #000 !important;
+      color: #ffeb3b !important;
+      font-size: 130% !important;
+    }
+
+    body.low-vision .container,
+    body.low-vision .header,
+    body.low-vision .content,
+    body.low-vision .demo-section,
+    body.low-vision .demo-box,
+    body.low-vision .note,
+    body.low-vision .feature-list,
+    body.low-vision .accessibility-menu,
+    body.low-vision pre {
+      background: #000 !important;
+      color: #ffeb3b !important;
+      border-color: #ffeb3b !important;
+    }
+
+    body.low-vision .container * {
+      color: #ffeb3b !important;
+    }
+
+    body.low-vision .menu-item:hover {
+      background: #111 !important;
+    }
+
+    body.low-vision a {
+      color: #ffeb3b !important;
+      text-decoration: underline !important;
+    }
+
+    body.low-vision .accessibility-button,
+    body.low-vision .font-btn,
+    body.low-vision .copy-button,
+    body.low-vision .reset-btn {
+      background: #ffeb3b !important;
+      color: #000 !important;
+      border: 1px solid #ffeb3b !important;
+    }
+
+    body.low-vision .toggle-switch {
+      background: #3f3f00 !important;
+      border: 1px solid #ffeb3b;
+    }
+
+    body.low-vision .toggle-switch.active {
+      background: #ffeb3b !important;
+    }
+
+    body.low-vision .toggle-switch::after {
+      background: #000 !important;
+      border: 1px solid #ffeb3b;
+    }
+
+    body.low-vision .menu-item label,
+    body.low-vision .menu-item i,
+    body.low-vision .font-size-display,
+    body.low-vision .menu-header,
+    body.low-vision .menu-signature {
+      color: #ffeb3b !important;
+    }
+
+    body.large-cursor * {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100px" height="100px" viewBox="0 0 24 24"><path fill="%231d4ed8" d="M8 3l4 16 2-7 7-2z"/></svg>'), auto !important;
+    }
+
+    body.high-contrast .menu-signature {
+      color: #fff !important;
+    }
+
+    .reading-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 980;
+      transition: opacity 0.2s ease;
+      background: linear-gradient(
+        to bottom,
+        rgba(4, 10, 24, 0.8) 0%,
+        rgba(4, 10, 24, 0.8) calc(var(--reading-y) - (var(--reading-band-size) / 2)),
+        rgba(4, 10, 24, 0.05) calc(var(--reading-y) - (var(--reading-band-size) / 2)),
+        rgba(4, 10, 24, 0.05) calc(var(--reading-y) + (var(--reading-band-size) / 2)),
+        rgba(4, 10, 24, 0.8) calc(var(--reading-y) + (var(--reading-band-size) / 2)),
+        rgba(4, 10, 24, 0.8) 100%
+      );
+    }
+
+    body.reading-mode .reading-overlay {
+      opacity: 1;
+    }
+
+    body.underline-links a {
+      text-decoration: underline !important;
+      font-weight: bold !important;
+    }
+
+    body.highlight-links a {
+      background: #ffeb3b !important;
+      padding: 2px 4px !important;
+      border-radius: 3px !important;
+    }
+
+    body.readable-font {
+      font-family: 'OpenDyslexic', 'Arial', 'Helvetica', sans-serif !important;
+    }
+
+    body.letter-spacing-wide {
+      letter-spacing: 0.12em !important;
+    }
+
+    body.line-height-large {
+      line-height: 2 !important;
+    }
+
+    .feature-list {
+      background: #eff6ff;
+      padding: 20px;
+      border-radius: 5px;
+      margin: 20px 0;
+    }
+
+    .feature-list h3 {
+      color: #1d4ed8;
+      margin-bottom: 15px;
+    }
+
+    .feature-list ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .feature-list li {
+      padding: 8px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+
+    .feature-list li:before {
+      content: "✓";
+      color: #28a745;
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 1.8em;
+      }
+      
+      .content {
+        padding: 20px;
+      }
+
+      .accessibility-menu {
+        width: 250px;
+        right: 10px;
+      }
+
+      .accessibility-button {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        right: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ACCESSIBILITY TOOLBAR (LIVE DEMO) -->
+  <button class="accessibility-button" onclick="toggleAccessibilityMenu()" aria-label="Toggle Accessibility Menu">
+    <i class="fa fa-universal-access"></i>
+  </button>
+
+  <div class="accessibility-menu" id="accessibilityMenu">
+    <div class="menu-header">
+      <i class="fa fa-universal-access"></i> Accessibility Options
+    </div>
+
+    <div class="menu-item">
+      <label>
+        <span><i class="fa fa-font"></i> Font Size</span>
+      </label>
+      <div class="font-controls">
+        <button class="font-btn" onclick="changeFontSize('decrease')">A-</button>
+        <span class="font-size-display" id="fontSizeDisplay">100%</span>
+        <button class="font-btn" onclick="changeFontSize('increase')">A+</button>
+      </div>
+    </div>
+
+    <div class="menu-item">
+      <label onclick="toggleHighContrast()">
+        <span><i class="fa fa-adjust"></i> High Contrast</span>
+        <div class="toggle-switch" id="contrastToggle"></div>
+      </label>
+    </div>
+
+    <div class="menu-item">
+      <label onclick="toggleDarkMode()">
+        <span><i class="fa fa-moon-o"></i> Dark Mode</span>
+        <div class="toggle-switch" id="darkModeToggle"></div>
+      </label>
+    </div>
+
+    <div class="menu-item">
+      <label onclick="toggleLowVisionMode()">
+        <span><i class="fa fa-binoculars"></i> Low Vision Mode</span>
+        <div class="toggle-switch" id="lowVisionToggle"></div>
+      </label>
+    </div>
+
+    <div class="menu-item">
+      <label onclick="toggleLargeCursor()">
+        <span><i class="fa fa-mouse-pointer"></i> Large Cursor</span>
+        <div class="toggle-switch" id="cursorToggle"></div>
+      </label>
+    </div>
+
+    <div class="menu-item">
+      <label onclick="toggleUnderlineLinks()">
+        <span><i class="fa fa-underline"></i> Underline Links</span>
+        <div class="toggle-switch" id="underlineToggle"></div>
+      </label>
+    </div>
+
+    <div class="menu-item">
+      <label onclick="toggleHighlightLinks()">
+        <span><i class="fa fa-lightbulb-o"></i> Highlight Links</span>
+        <div class="toggle-switch" id="highlightToggle"></div>
+      </label>
+    </div>
+
+    <div class="menu-item">
+      <label onclick="toggleReadableFont()">
+        <span><i class="fa fa-book"></i> Dyslexia Font</span>
+        <div class="toggle-switch" id="fontToggle"></div>
+      </label>
+    </div>
+
+    <div class="menu-item">
+      <label onclick="toggleLetterSpacing()">
+        <span><i class="fa fa-text-width"></i> Letter Spacing</span>
+        <div class="toggle-switch" id="spacingToggle"></div>
+      </label>
+    </div>
+
+    <div class="menu-item">
+      <label onclick="toggleLineHeight()">
+        <span><i class="fa fa-align-justify"></i> Line Height</span>
+        <div class="toggle-switch" id="lineHeightToggle"></div>
+      </label>
+    </div>
+
+    <div class="menu-item">
+      <label onclick="toggleReadingMode()">
+        <span><i class="fa fa-eye"></i> Reading Mode</span>
+        <div class="toggle-switch" id="readingModeToggle"></div>
+      </label>
+    </div>
+
+    <div class="menu-signature">Made with Love by Arshad Abdul, IITH</div>
+
+    <button class="reset-btn" onclick="resetAccessibility()">
+      <i class="fa fa-refresh"></i> Reset All Settings
+    </button>
+  </div>
+
+  <div class="reading-overlay" aria-hidden="true"></div>
+
+  <div class="container">
+    <div class="header">
+      <h1>♿ Accessibility Toolbar</h1>
+      <p>Complete reusable accessibility solution for your website | AIDL 2026 Symposium</p>
+    </div>
+
+    <div class="content">
+      
+      <div class="demo-section">
+        <h2>🎯 Try It Now!</h2>
+        <p>Click the <strong>accessibility button (♿)</strong> in the top-right corner to open the toolbar and test all features!</p>
+        
+        <div class="feature-list">
+          <h3>Available Features:</h3>
+          <ul>
+            <li><strong>Font Size Control</strong> - Increase/decrease text size</li>
+            <li><strong>High Contrast Mode</strong> - Black & white for better visibility</li>
+            <li><strong>Dark Mode</strong> - Reduce eye strain in low light</li>
+            <li><strong>Low Vision Mode</strong> - Black background, yellow text, larger text</li>
+            <li><strong>Large Cursor</strong> - Easier to track cursor movement</li>
+            <li><strong>Underline Links</strong> - Make all links more visible</li>
+            <li><strong>Highlight Links</strong> - Yellow background on all links</li>
+            <li><strong>Dyslexia Font</strong> - Switch to dyslexia-friendly font</li>
+            <li><strong>Letter Spacing</strong> - Increase space between characters</li>
+            <li><strong>Line Height</strong> - Increase space between lines</li>
+            <li><strong>Reading Mode</strong> - Highlight a reading strip near the mouse</li>
+            <li><strong>Settings Persistence</strong> - Preferences saved in browser</li>
+          </ul>
+        </div>
+
+        <div class="demo-box">
+          <h3>Sample Content to Test</h3>
+          <p>This is a paragraph of text that you can use to test all the accessibility features. Try adjusting the font size, switching to dark mode, or enabling high contrast to see how it affects readability.</p>
+          <p><a href="#demo">This is a sample link</a> that you can use to test link highlighting and underlining features.</p>
+          <p><strong>Bold text</strong>, <em>italic text</em>, and regular text all respond to the accessibility settings.</p>
+        </div>
+      </div>
+
+      <div class="instructions">
+        <h2>📋 Integration Instructions</h2>
+        <p>Follow these simple steps to add the Accessibility Toolbar to your website:</p>
+        <ol>
+          <li>Copy the <strong>HTML code</strong> for the button and menu</li>
+          <li>Copy the <strong>CSS styles</strong> to your stylesheet</li>
+          <li>Copy the <strong>JavaScript code</strong> for functionality</li>
+          <li>Include <strong>Font Awesome</strong> and <strong>OpenDyslexic CDN</strong> links</li>
+          <li>Customize colors and position as needed</li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <strong>💡 Note:</strong> This toolbar is fully WCAG 2.1 compliant and uses localStorage to remember user preferences across sessions. All settings persist until the user resets them.
+      </div>
+
+      <div class="code-section">
+        <h3>
+          <span>1. HTML Code</span>
+          <button class="copy-button" onclick="copyCode('html-code')">
+            <i class="fa fa-copy"></i> Copy Code
+          </button>
+        </h3>
+        <div class="code-block">
+          <pre id="html-code"><code>&lt;!-- Accessibility Button --&gt;
+&lt;button class="accessibility-button" onclick="toggleAccessibilityMenu()" aria-label="Toggle Accessibility Menu"&gt;
+  &lt;i class="fa fa-universal-access"&gt;&lt;/i&gt;
+&lt;/button&gt;
+
+&lt;!-- Accessibility Menu --&gt;
+&lt;div class="accessibility-menu" id="accessibilityMenu"&gt;
+  &lt;div class="menu-header"&gt;
+    &lt;i class="fa fa-universal-access"&gt;&lt;/i&gt; Accessibility Options
+  &lt;/div&gt;
+
+  &lt;div class="menu-item"&gt;
+    &lt;label&gt;
+      &lt;span&gt;&lt;i class="fa fa-font"&gt;&lt;/i&gt; Font Size&lt;/span&gt;
+    &lt;/label&gt;
+    &lt;div class="font-controls"&gt;
+      &lt;button class="font-btn" onclick="changeFontSize('decrease')"&gt;A-&lt;/button&gt;
+      &lt;span class="font-size-display" id="fontSizeDisplay"&gt;100%&lt;/span&gt;
+      &lt;button class="font-btn" onclick="changeFontSize('increase')"&gt;A+&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class="menu-item"&gt;
+    &lt;label onclick="toggleHighContrast()"&gt;
+      &lt;span&gt;&lt;i class="fa fa-adjust"&gt;&lt;/i&gt; High Contrast&lt;/span&gt;
+      &lt;div class="toggle-switch" id="contrastToggle"&gt;&lt;/div&gt;
+    &lt;/label&gt;
+  &lt;/div&gt;
+
+  &lt;div class="menu-item"&gt;
+    &lt;label onclick="toggleDarkMode()"&gt;
+      &lt;span&gt;&lt;i class="fa fa-moon-o"&gt;&lt;/i&gt; Dark Mode&lt;/span&gt;
+      &lt;div class="toggle-switch" id="darkModeToggle"&gt;&lt;/div&gt;
+    &lt;/label&gt;
+  &lt;/div&gt;
+
+  &lt;div class="menu-item"&gt;
+    &lt;label onclick="toggleLowVisionMode()"&gt;
+      &lt;span&gt;&lt;i class="fa fa-binoculars"&gt;&lt;/i&gt; Low Vision Mode&lt;/span&gt;
+      &lt;div class="toggle-switch" id="lowVisionToggle"&gt;&lt;/div&gt;
+    &lt;/label&gt;
+  &lt;/div&gt;
+
+  &lt;div class="menu-item"&gt;
+    &lt;label onclick="toggleLargeCursor()"&gt;
+      &lt;span&gt;&lt;i class="fa fa-mouse-pointer"&gt;&lt;/i&gt; Large Cursor&lt;/span&gt;
+      &lt;div class="toggle-switch" id="cursorToggle"&gt;&lt;/div&gt;
+    &lt;/label&gt;
+  &lt;/div&gt;
+
+  &lt;div class="menu-item"&gt;
+    &lt;label onclick="toggleUnderlineLinks()"&gt;
+      &lt;span&gt;&lt;i class="fa fa-underline"&gt;&lt;/i&gt; Underline Links&lt;/span&gt;
+      &lt;div class="toggle-switch" id="underlineToggle"&gt;&lt;/div&gt;
+    &lt;/label&gt;
+  &lt;/div&gt;
+
+  &lt;div class="menu-item"&gt;
+    &lt;label onclick="toggleHighlightLinks()"&gt;
+      &lt;span&gt;&lt;i class="fa fa-lightbulb-o"&gt;&lt;/i&gt; Highlight Links&lt;/span&gt;
+      &lt;div class="toggle-switch" id="highlightToggle"&gt;&lt;/div&gt;
+    &lt;/label&gt;
+  &lt;/div&gt;
+
+  &lt;div class="menu-item"&gt;
+    &lt;label onclick="toggleReadableFont()"&gt;
+      &lt;span&gt;&lt;i class="fa fa-book"&gt;&lt;/i&gt; Dyslexia Font&lt;/span&gt;
+      &lt;div class="toggle-switch" id="fontToggle"&gt;&lt;/div&gt;
+    &lt;/label&gt;
+  &lt;/div&gt;
+
+  &lt;div class="menu-item"&gt;
+    &lt;label onclick="toggleLetterSpacing()"&gt;
+      &lt;span&gt;&lt;i class="fa fa-text-width"&gt;&lt;/i&gt; Letter Spacing&lt;/span&gt;
+      &lt;div class="toggle-switch" id="spacingToggle"&gt;&lt;/div&gt;
+    &lt;/label&gt;
+  &lt;/div&gt;
+
+  &lt;div class="menu-item"&gt;
+    &lt;label onclick="toggleLineHeight()"&gt;
+      &lt;span&gt;&lt;i class="fa fa-align-justify"&gt;&lt;/i&gt; Line Height&lt;/span&gt;
+      &lt;div class="toggle-switch" id="lineHeightToggle"&gt;&lt;/div&gt;
+    &lt;/label&gt;
+  &lt;/div&gt;
+
+  &lt;div class="menu-item"&gt;
+    &lt;label onclick="toggleReadingMode()"&gt;
+      &lt;span&gt;&lt;i class="fa fa-eye"&gt;&lt;/i&gt; Reading Mode&lt;/span&gt;
+      &lt;div class="toggle-switch" id="readingModeToggle"&gt;&lt;/div&gt;
+    &lt;/label&gt;
+  &lt;/div&gt;
+
+  &lt;div class="menu-signature"&gt;Arshad Abdul&lt;/div&gt;
+
+  &lt;button class="reset-btn" onclick="resetAccessibility()"&gt;
+    &lt;i class="fa fa-refresh"&gt;&lt;/i&gt; Reset All Settings
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class="reading-overlay" aria-hidden="true"&gt;&lt;/div&gt;</code></pre>
+        </div>
+
+        <h3>
+          <span>2. CSS Code (Part 1 - Button & Menu)</span>
+          <button class="copy-button" onclick="copyCode('css-code-1')">
+            <i class="fa fa-copy"></i> Copy Code
+          </button>
+        </h3>
+        <div class="code-block">
+          <pre id="css-code-1"><code>/* Accessibility Button */
+.accessibility-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  padding: 0;
+}
+
+.accessibility-button:hover {
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+}
+
+.accessibility-button:active {
+  transform: scale(0.95);
+}
+
+/* Accessibility Menu */
+.accessibility-menu {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  padding: 20px;
+  width: 280px;
+  display: none;
+  z-index: 999;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.accessibility-menu.active {
+  display: block;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menu-header {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1d4ed8;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #2563eb;
+}
+
+.menu-signature {
+  margin: 8px 0 12px;
+  text-align: center;
+  font-size: 12px;
+  color: #475569;
+}
+
+.menu-item {
+  margin: 12px 0;
+  padding: 10px;
+  border-radius: 5px;
+  transition: background 0.2s;
+}
+
+.menu-item:hover {
+  background: #f8f9fa;
+}
+
+.menu-item label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.menu-item i {
+  margin-right: 10px;
+  width: 20px;
+  text-align: center;
+  color: #1d4ed8;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  background: #ccc;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle-switch.active {
+  background: #1d4ed8;
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: left 0.3s;
+}
+
+.toggle-switch.active::after {
+  left: 28px;
+}
+
+/* Font Controls */
+.font-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.font-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.font-btn:hover {
+  background: #1d4ed8;
+  transform: scale(1.05);
+}
+
+.font-size-display {
+  font-weight: bold;
+  color: #1d4ed8;
+  min-width: 50px;
+  text-align: center;
+}
+
+.reset-btn {
+  width: 100%;
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 15px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.reset-btn:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}</code></pre>
+        </div>
+
+        <h3>
+          <span>3. CSS Code (Part 2 - Accessibility Modes)</span>
+          <button class="copy-button" onclick="copyCode('css-code-2')">
+            <i class="fa fa-copy"></i> Copy Code
+          </button>
+        </h3>
+        <div class="code-block">
+          <pre id="css-code-2"><code>/* High Contrast Mode */
+body.high-contrast {
+  background: black !important;
+}
+
+body.high-contrast * {
+  background: #000 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+
+body.high-contrast .accessibility-button {
+  background: #fff !important;
+  color: #000 !important;
+}
+
+/* Dark Mode */
+body.dark-mode {
+  background: #1a1a1a !important;
+}
+
+body.dark-mode .container {
+  background: #111827 !important;
+  color: #fff !important;
+}
+
+body.dark-mode .container * {
+  color: #fff !important;
+}
+
+body.dark-mode .header {
+  background: #0f172a !important;
+}
+
+body.dark-mode .demo-section,
+body.dark-mode .demo-box,
+body.dark-mode .note,
+body.dark-mode .feature-list {
+  background: #1f2937 !important;
+  color: #fff !important;
+  border-color: #374151 !important;
+}
+
+body.dark-mode a {
+  color: #fff !important;
+}
+
+body.dark-mode .accessibility-menu {
+  background: #111827 !important;
+  color: #fff !important;
+  border: 1px solid #374151;
+}
+
+body.dark-mode .menu-item:hover {
+  background: #1f2937 !important;
+}
+
+body.dark-mode .menu-header,
+body.dark-mode .menu-item label,
+body.dark-mode .menu-item span,
+body.dark-mode .font-size-display {
+  color: #fff !important;
+}
+
+body.dark-mode .menu-item i {
+  color: #fff !important;
+}
+
+body.dark-mode .menu-signature {
+  color: #fff !important;
+}
+
+body.dark-mode .font-btn {
+  background: #2563eb !important;
+  color: #fff !important;
+}
+
+body.dark-mode .font-btn:hover {
+  background: #1d4ed8 !important;
+}
+
+body.dark-mode .toggle-switch {
+  background: #4b5563;
+}
+
+/* Low Vision Mode */
+body.low-vision {
+  background: #000 !important;
+  color: #ffeb3b !important;
+  font-size: 130% !important;
+}
+
+body.low-vision .container,
+body.low-vision .header,
+body.low-vision .content,
+body.low-vision .demo-section,
+body.low-vision .demo-box,
+body.low-vision .note,
+body.low-vision .feature-list,
+body.low-vision .accessibility-menu,
+body.low-vision pre {
+  background: #000 !important;
+  color: #ffeb3b !important;
+  border-color: #ffeb3b !important;
+}
+
+body.low-vision .container * {
+  color: #ffeb3b !important;
+}
+
+body.low-vision .menu-item:hover {
+  background: #111 !important;
+}
+
+body.low-vision a {
+  color: #ffeb3b !important;
+  text-decoration: underline !important;
+}
+
+body.low-vision .accessibility-button,
+body.low-vision .font-btn,
+body.low-vision .copy-button,
+body.low-vision .reset-btn {
+  background: #ffeb3b !important;
+  color: #000 !important;
+  border: 1px solid #ffeb3b !important;
+}
+
+body.low-vision .toggle-switch {
+  background: #3f3f00 !important;
+  border: 1px solid #ffeb3b;
+}
+
+body.low-vision .toggle-switch.active {
+  background: #ffeb3b !important;
+}
+
+body.low-vision .toggle-switch::after {
+  background: #000 !important;
+  border: 1px solid #ffeb3b;
+}
+
+body.low-vision .menu-item label,
+body.low-vision .menu-item i,
+body.low-vision .font-size-display,
+body.low-vision .menu-header,
+body.low-vision .menu-signature {
+  color: #ffeb3b !important;
+}
+
+/* Large Cursor */
+body.large-cursor * {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="%231d4ed8" d="M8 3l4 16 2-7 7-2z"/></svg>'), auto !important;
+}
+
+/* Underline Links */
+body.underline-links a {
+  text-decoration: underline !important;
+  font-weight: bold !important;
+}
+
+/* Highlight Links */
+body.highlight-links a {
+  background: #ffeb3b !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+}
+
+/* Dyslexia Font */
+body.readable-font {
+  font-family: 'OpenDyslexic', 'Arial', 'Helvetica', sans-serif !important;
+}
+
+/* Letter Spacing */
+body.letter-spacing-wide {
+  letter-spacing: 0.12em !important;
+}
+
+/* Line Height */
+body.line-height-large {
+  line-height: 2 !important;
+
+}
+
+/* Reading Mode */
+body {
+  --reading-y: 50vh;
+  --reading-band-size: 130px;
+}
+
+.reading-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 980;
+  transition: opacity 0.2s ease;
+  background: linear-gradient(
+    to bottom,
+    rgba(4, 10, 24, 0.8) 0%,
+    rgba(4, 10, 24, 0.8) calc(var(--reading-y) - (var(--reading-band-size) / 2)),
+    rgba(4, 10, 24, 0.05) calc(var(--reading-y) - (var(--reading-band-size) / 2)),
+    rgba(4, 10, 24, 0.05) calc(var(--reading-y) + (var(--reading-band-size) / 2)),
+    rgba(4, 10, 24, 0.8) calc(var(--reading-y) + (var(--reading-band-size) / 2)),
+    rgba(4, 10, 24, 0.8) 100%
+  );
+}
+
+body.reading-mode .reading-overlay {
+  opacity: 1;
+}</code></pre>
+        </div>
+
+        <h3>
+          <span>4. JavaScript Code</span>
+          <button class="copy-button" onclick="copyCode('js-code')">
+            <i class="fa fa-copy"></i> Copy Code
+          </button>
+        </h3>
+        <div class="code-block">
+          <pre id="js-code"><code>// Accessibility Settings State
+let accessibilitySettings = {
+  fontSize: 100,
+  highContrast: false,
+  darkMode: false,
+  largeCursor: false,
+  underlineLinks: false,
+  highlightLinks: false,
+  readableFont: false,
+  letterSpacing: false,
+  lineHeight: false,
+  readingMode: false,
+  lowVision: false
+};
+
+// Load settings from localStorage on page load
+document.addEventListener('DOMContentLoaded', function() {
+  loadSettings();
+  applySettings();
+  updateReadingBand(window.innerHeight / 2);
+});
+
+// Toggle Accessibility Menu
+function toggleAccessibilityMenu() {
+  const menu = document.getElementById('accessibilityMenu');
+  menu.classList.toggle('active');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+  const menu = document.getElementById('accessibilityMenu');
+  const button = document.querySelector('.accessibility-button');
+  
+  if (!menu.contains(event.target) && !button.contains(event.target)) {
+    menu.classList.remove('active');
+  }
+});
+
+document.addEventListener('mousemove', function(event) {
+  if (accessibilitySettings.readingMode) {
+    updateReadingBand(event.clientY);
+  }
+});
+
+document.addEventListener('touchmove', function(event) {
+  if (accessibilitySettings.readingMode && event.touches.length > 0) {
+    updateReadingBand(event.touches[0].clientY);
+  }
+}, { passive: true });
+
+function updateReadingBand(yPosition) {
+  document.body.style.setProperty('--reading-y', yPosition + 'px');
+}
+
+// Change Font Size
+function changeFontSize(action) {
+  if (action === 'increase' && accessibilitySettings.fontSize < 200) {
+    accessibilitySettings.fontSize += 10;
+  } else if (action === 'decrease' && accessibilitySettings.fontSize > 80) {
+    accessibilitySettings.fontSize -= 10;
+  }
+  
+  document.body.style.fontSize = accessibilitySettings.fontSize + '%';
+  document.getElementById('fontSizeDisplay').textContent = accessibilitySettings.fontSize + '%';
+  saveSettings();
+}
+
+// Toggle High Contrast
+function toggleHighContrast() {
+  accessibilitySettings.highContrast = !accessibilitySettings.highContrast;
+  document.body.classList.toggle('high-contrast', accessibilitySettings.highContrast);
+  document.getElementById('contrastToggle').classList.toggle('active', accessibilitySettings.highContrast);
+  
+  // Disable dark mode if high contrast is enabled
+  if (accessibilitySettings.highContrast && accessibilitySettings.darkMode) {
+    toggleDarkMode();
+  }
+
+  // Disable low vision mode if high contrast is enabled
+  if (accessibilitySettings.highContrast && accessibilitySettings.lowVision) {
+    toggleLowVisionMode();
+  }
+  
+  saveSettings();
+}
+
+// Toggle Dark Mode
+function toggleDarkMode() {
+  accessibilitySettings.darkMode = !accessibilitySettings.darkMode;
+  document.body.classList.toggle('dark-mode', accessibilitySettings.darkMode);
+  document.getElementById('darkModeToggle').classList.toggle('active', accessibilitySettings.darkMode);
+  
+  // Disable high contrast if dark mode is enabled
+  if (accessibilitySettings.darkMode && accessibilitySettings.highContrast) {
+    toggleHighContrast();
+  }
+
+  // Disable low vision mode if dark mode is enabled
+  if (accessibilitySettings.darkMode && accessibilitySettings.lowVision) {
+    toggleLowVisionMode();
+  }
+  
+  saveSettings();
+}
+
+// Toggle Low Vision Mode
+function toggleLowVisionMode() {
+  accessibilitySettings.lowVision = !accessibilitySettings.lowVision;
+  document.body.classList.toggle('low-vision', accessibilitySettings.lowVision);
+  document.getElementById('lowVisionToggle').classList.toggle('active', accessibilitySettings.lowVision);
+
+  if (accessibilitySettings.lowVision && accessibilitySettings.darkMode) {
+    toggleDarkMode();
+  }
+
+  if (accessibilitySettings.lowVision && accessibilitySettings.highContrast) {
+    toggleHighContrast();
+  }
+
+  if (accessibilitySettings.lowVision && accessibilitySettings.fontSize < 130) {
+    accessibilitySettings.fontSize = 130;
+    document.body.style.fontSize = accessibilitySettings.fontSize + '%';
+    document.getElementById('fontSizeDisplay').textContent = accessibilitySettings.fontSize + '%';
+  }
+
+  saveSettings();
+}
+
+// Toggle Large Cursor
+function toggleLargeCursor() {
+  accessibilitySettings.largeCursor = !accessibilitySettings.largeCursor;
+  document.body.classList.toggle('large-cursor', accessibilitySettings.largeCursor);
+  document.getElementById('cursorToggle').classList.toggle('active', accessibilitySettings.largeCursor);
+  saveSettings();
+}
+
+// Toggle Underline Links
+function toggleUnderlineLinks() {
+  accessibilitySettings.underlineLinks = !accessibilitySettings.underlineLinks;
+  document.body.classList.toggle('underline-links', accessibilitySettings.underlineLinks);
+  document.getElementById('underlineToggle').classList.toggle('active', accessibilitySettings.underlineLinks);
+  saveSettings();
+}
+
+// Toggle Highlight Links
+function toggleHighlightLinks() {
+  accessibilitySettings.highlightLinks = !accessibilitySettings.highlightLinks;
+  document.body.classList.toggle('highlight-links', accessibilitySettings.highlightLinks);
+  document.getElementById('highlightToggle').classList.toggle('active', accessibilitySettings.highlightLinks);
+  saveSettings();
+}
+
+// Toggle Dyslexia Font
+function toggleReadableFont() {
+  accessibilitySettings.readableFont = !accessibilitySettings.readableFont;
+  document.body.classList.toggle('readable-font', accessibilitySettings.readableFont);
+  document.getElementById('fontToggle').classList.toggle('active', accessibilitySettings.readableFont);
+  saveSettings();
+}
+
+// Toggle Letter Spacing
+function toggleLetterSpacing() {
+  accessibilitySettings.letterSpacing = !accessibilitySettings.letterSpacing;
+  document.body.classList.toggle('letter-spacing-wide', accessibilitySettings.letterSpacing);
+  document.getElementById('spacingToggle').classList.toggle('active', accessibilitySettings.letterSpacing);
+  saveSettings();
+}
+
+// Toggle Line Height
+function toggleLineHeight() {
+  accessibilitySettings.lineHeight = !accessibilitySettings.lineHeight;
+  document.body.classList.toggle('line-height-large', accessibilitySettings.lineHeight);
+  document.getElementById('lineHeightToggle').classList.toggle('active', accessibilitySettings.lineHeight);
+  saveSettings();
+}
+
+// Toggle Reading Mode
+function toggleReadingMode() {
+  accessibilitySettings.readingMode = !accessibilitySettings.readingMode;
+  document.body.classList.toggle('reading-mode', accessibilitySettings.readingMode);
+  document.getElementById('readingModeToggle').classList.toggle('active', accessibilitySettings.readingMode);
+
+  if (accessibilitySettings.readingMode) {
+    updateReadingBand(window.innerHeight / 2);
+  }
+
+  saveSettings();
+}
+
+// Reset All Accessibility Settings
+function resetAccessibility() {
+  accessibilitySettings = {
+    fontSize: 100,
+    highContrast: false,
+    darkMode: false,
+    largeCursor: false,
+    underlineLinks: false,
+    highlightLinks: false,
+    readableFont: false,
+    letterSpacing: false,
+    lineHeight: false,
+    readingMode: false,
+    lowVision: false
+  };
+  
+  // Remove all classes
+  document.body.className = '';
+  document.body.style.fontSize = '100%';
+  updateReadingBand(window.innerHeight / 2);
+  
+  // Reset all toggles
+  document.querySelectorAll('.toggle-switch').forEach(toggle => {
+    toggle.classList.remove('active');
+  });
+  
+  document.getElementById('fontSizeDisplay').textContent = '100%';
+  
+  saveSettings();
+  alert('All accessibility settings have been reset!');
+}
+
+// Save Settings to localStorage
+function saveSettings() {
+  localStorage.setItem('accessibilitySettings', JSON.stringify(accessibilitySettings));
+}
+
+// Load Settings from localStorage
+function loadSettings() {
+  const saved = localStorage.getItem('accessibilitySettings');
+  if (saved) {
+    accessibilitySettings = Object.assign({}, accessibilitySettings, JSON.parse(saved));
+  }
+}
+
+// Apply Settings on Page Load
+function applySettings() {
+  // Apply font size
+  document.body.style.fontSize = accessibilitySettings.fontSize + '%';
+  document.getElementById('fontSizeDisplay').textContent = accessibilitySettings.fontSize + '%';
+  
+  // Apply all toggles
+  if (accessibilitySettings.highContrast) {
+    document.body.classList.add('high-contrast');
+    document.getElementById('contrastToggle').classList.add('active');
+  }
+  
+  if (accessibilitySettings.darkMode) {
+    document.body.classList.add('dark-mode');
+    document.getElementById('darkModeToggle').classList.add('active');
+  }
+  
+  if (accessibilitySettings.largeCursor) {
+    document.body.classList.add('large-cursor');
+    document.getElementById('cursorToggle').classList.add('active');
+  }
+  
+  if (accessibilitySettings.underlineLinks) {
+    document.body.classList.add('underline-links');
+    document.getElementById('underlineToggle').classList.add('active');
+  }
+  
+  if (accessibilitySettings.highlightLinks) {
+    document.body.classList.add('highlight-links');
+    document.getElementById('highlightToggle').classList.add('active');
+  }
+  
+  if (accessibilitySettings.readableFont) {
+    document.body.classList.add('readable-font');
+    document.getElementById('fontToggle').classList.add('active');
+  }
+  
+  if (accessibilitySettings.letterSpacing) {
+    document.body.classList.add('letter-spacing-wide');
+    document.getElementById('spacingToggle').classList.add('active');
+  }
+  
+  if (accessibilitySettings.lineHeight) {
+    document.body.classList.add('line-height-large');
+    document.getElementById('lineHeightToggle').classList.add('active');
+  }
+
+  if (accessibilitySettings.lowVision) {
+    document.body.classList.add('low-vision');
+    document.getElementById('lowVisionToggle').classList.add('active');
+  }
+
+  if (accessibilitySettings.readingMode) {
+    document.body.classList.add('reading-mode');
+    document.getElementById('readingModeToggle').classList.add('active');
+  }
+}</code></pre>
+        </div>
+
+        <h3>
+          <span>5. Include Required CDN Links</span>
+          <button class="copy-button" onclick="copyCode('fontawesome-code')">
+            <i class="fa fa-copy"></i> Copy Code
+          </button>
+        </h3>
+        <div class="code-block">
+          <pre id="fontawesome-code"><code>&lt;!-- Add this in your HTML &lt;head&gt; section --&gt;
+&lt;link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"&gt;
+&lt;link href="https://unpkg.com/@fontsource/opendyslexic/index.css" rel="stylesheet"&gt;</code></pre>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>🎨 Customization Tips:</strong>
+        <ul style="margin-top: 10px; margin-left: 20px;">
+          <li>Change the button colors by modifying the gradient values in CSS</li>
+          <li>Adjust the position by changing top/right values</li>
+          <li>Modify the menu width for your needs</li>
+          <li>Add or remove features as needed</li>
+          <li>Customize the localStorage key if using multiple implementations</li>
+        </ul>
+      </div>
+
+      <div class="instructions">
+        <h2>🌟 Features Breakdown</h2>
+        
+        <h3>1. Font Size Control</h3>
+        <p>Allows users to increase or decrease text size from 80% to 200% in 10% increments. Perfect for users with low vision.</p>
+        
+        <h3>2. High Contrast Mode</h3>
+        <p>Switches to pure black and white for maximum contrast. Excellent for users with certain vision impairments.</p>
+        
+        <h3>3. Dark Mode</h3>
+        <p>Reduces eye strain in low-light environments by using dark backgrounds with light text.</p>
+        
+        <h3>4. Low Vision Mode</h3>
+        <p>Uses a black background, yellow text, and larger font size to maximize readability for many low-vision users.</p>
+
+        <h3>5. Large Cursor</h3>
+        <p>Increases cursor size for easier tracking. Helpful for users with motor control issues.</p>
+        
+        <h3>6. Underline Links</h3>
+        <p>Makes all links underlined and bold for better visibility and identification.</p>
+        
+        <h3>7. Highlight Links</h3>
+        <p>Adds yellow background to all links making them impossible to miss.</p>
+        
+        <h3>8. Dyslexia Font</h3>
+        <p>Applies OpenDyslexic with safe fallbacks to improve letter distinction for many readers with dyslexia.</p>
+        
+        <h3>9. Letter Spacing</h3>
+        <p>Increases space between characters for improved readability.</p>
+        
+        <h3>10. Line Height</h3>
+        <p>Increases vertical spacing between lines of text for easier reading.</p>
+        
+        <h3>11. Reading Mode</h3>
+        <p>Keeps a clear horizontal strip near the pointer and dims the rest of the page to support focused reading.</p>
+
+        <h3>12. Settings Persistence</h3>
+        <p>All settings are automatically saved to localStorage and persist across page refreshes and browser sessions.</p>
+      </div>
+
+      <div class="feature-list">
+        <h3>✓ Benefits</h3>
+        <ul>
+          <li>WCAG 2.1 Level AA Compliant</li>
+          <li>No heavy dependencies (only Font Awesome and OpenDyslexic CDN)</li>
+          <li>Lightweight and fast loading</li>
+          <li>Mobile responsive design</li>
+          <li>Settings persist across sessions</li>
+          <li>Easy to customize and extend</li>
+          <li>Works with any website</li>
+          <li>Improves accessibility score</li>
+          <li>Better SEO rankings</li>
+          <li>Inclusive user experience</li>
+        </ul>
+      </div>
+
+      <div class="demo-section">
+        <h2>📱 Browser Compatibility</h2>
+        <p>This accessibility toolbar works in:</p>
+        <ul style="margin-left: 20px; margin-top: 10px;">
+          <li>✅ Chrome/Edge (all recent versions)</li>
+          <li>✅ Firefox (all recent versions)</li>
+          <li>✅ Safari (all recent versions)</li>
+          <li>✅ Opera (all recent versions)</li>
+          <li>✅ Mobile browsers (iOS Safari, Chrome Mobile)</li>
+        </ul>
+      </div>
+
+      <div class="note">
+        <strong>⚡ Performance Note:</strong> All changes are applied using CSS classes for optimal performance. localStorage is used for persistence, requiring no server-side code.
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Copy Code Functionality
+    function copyCode(elementId) {
+      const codeElement = document.getElementById(elementId);
+      const code = codeElement.textContent;
+      
+      navigator.clipboard.writeText(code).then(function() {
+        const button = event.target.closest('.copy-button');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fa fa-check"></i> Copied!';
+        button.classList.add('copied');
+        
+        setTimeout(function() {
+          button.innerHTML = originalText;
+          button.classList.remove('copied');
+        }, 2000);
+      }).catch(function(err) {
+        alert('Failed to copy code. Please copy manually.');
+      });
+    }
+
+    // Accessibility Settings State
+    let accessibilitySettings = {
+      fontSize: 100,
+      highContrast: false,
+      darkMode: false,
+      largeCursor: false,
+      underlineLinks: false,
+      highlightLinks: false,
+      readableFont: false,
+      letterSpacing: false,
+      lineHeight: false,
+      readingMode: false,
+      lowVision: false
+    };
+
+    // Load settings from localStorage on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadSettings();
+      applySettings();
+      updateReadingBand(window.innerHeight / 2);
+    });
+
+    // Toggle Accessibility Menu
+    function toggleAccessibilityMenu() {
+      const menu = document.getElementById('accessibilityMenu');
+      menu.classList.toggle('active');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+      const menu = document.getElementById('accessibilityMenu');
+      const button = document.querySelector('.accessibility-button');
+      
+      if (!menu.contains(event.target) && !button.contains(event.target)) {
+        menu.classList.remove('active');
+      }
+    });
+
+    document.addEventListener('mousemove', function(event) {
+      if (accessibilitySettings.readingMode) {
+        updateReadingBand(event.clientY);
+      }
+    });
+
+    document.addEventListener('touchmove', function(event) {
+      if (accessibilitySettings.readingMode && event.touches.length > 0) {
+        updateReadingBand(event.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    function updateReadingBand(yPosition) {
+      document.body.style.setProperty('--reading-y', yPosition + 'px');
+    }
+
+    // Change Font Size
+    function changeFontSize(action) {
+      if (action === 'increase' && accessibilitySettings.fontSize < 200) {
+        accessibilitySettings.fontSize += 10;
+      } else if (action === 'decrease' && accessibilitySettings.fontSize > 80) {
+        accessibilitySettings.fontSize -= 10;
+      }
+      
+      document.body.style.fontSize = accessibilitySettings.fontSize + '%';
+      document.getElementById('fontSizeDisplay').textContent = accessibilitySettings.fontSize + '%';
+      saveSettings();
+    }
+
+    // Toggle High Contrast
+    function toggleHighContrast() {
+      accessibilitySettings.highContrast = !accessibilitySettings.highContrast;
+      document.body.classList.toggle('high-contrast', accessibilitySettings.highContrast);
+      document.getElementById('contrastToggle').classList.toggle('active', accessibilitySettings.highContrast);
+      
+      // Disable dark mode if high contrast is enabled
+      if (accessibilitySettings.highContrast && accessibilitySettings.darkMode) {
+        toggleDarkMode();
+      }
+
+      // Disable low vision mode if high contrast is enabled
+      if (accessibilitySettings.highContrast && accessibilitySettings.lowVision) {
+        toggleLowVisionMode();
+      }
+      
+      saveSettings();
+    }
+
+    // Toggle Dark Mode
+    function toggleDarkMode() {
+      accessibilitySettings.darkMode = !accessibilitySettings.darkMode;
+      document.body.classList.toggle('dark-mode', accessibilitySettings.darkMode);
+      document.getElementById('darkModeToggle').classList.toggle('active', accessibilitySettings.darkMode);
+      
+      // Disable high contrast if dark mode is enabled
+      if (accessibilitySettings.darkMode && accessibilitySettings.highContrast) {
+        toggleHighContrast();
+      }
+
+      // Disable low vision mode if dark mode is enabled
+      if (accessibilitySettings.darkMode && accessibilitySettings.lowVision) {
+        toggleLowVisionMode();
+      }
+      
+      saveSettings();
+    }
+
+    // Toggle Low Vision Mode
+    function toggleLowVisionMode() {
+      accessibilitySettings.lowVision = !accessibilitySettings.lowVision;
+      document.body.classList.toggle('low-vision', accessibilitySettings.lowVision);
+      document.getElementById('lowVisionToggle').classList.toggle('active', accessibilitySettings.lowVision);
+
+      if (accessibilitySettings.lowVision && accessibilitySettings.darkMode) {
+        toggleDarkMode();
+      }
+
+      if (accessibilitySettings.lowVision && accessibilitySettings.highContrast) {
+        toggleHighContrast();
+      }
+
+      if (accessibilitySettings.lowVision && accessibilitySettings.fontSize < 130) {
+        accessibilitySettings.fontSize = 130;
+        document.body.style.fontSize = accessibilitySettings.fontSize + '%';
+        document.getElementById('fontSizeDisplay').textContent = accessibilitySettings.fontSize + '%';
+      }
+
+      saveSettings();
+    }
+
+    // Toggle Large Cursor
+    function toggleLargeCursor() {
+      accessibilitySettings.largeCursor = !accessibilitySettings.largeCursor;
+      document.body.classList.toggle('large-cursor', accessibilitySettings.largeCursor);
+      document.getElementById('cursorToggle').classList.toggle('active', accessibilitySettings.largeCursor);
+      saveSettings();
+    }
+
+    // Toggle Underline Links
+    function toggleUnderlineLinks() {
+      accessibilitySettings.underlineLinks = !accessibilitySettings.underlineLinks;
+      document.body.classList.toggle('underline-links', accessibilitySettings.underlineLinks);
+      document.getElementById('underlineToggle').classList.toggle('active', accessibilitySettings.underlineLinks);
+      saveSettings();
+    }
+
+    // Toggle Highlight Links
+    function toggleHighlightLinks() {
+      accessibilitySettings.highlightLinks = !accessibilitySettings.highlightLinks;
+      document.body.classList.toggle('highlight-links', accessibilitySettings.highlightLinks);
+      document.getElementById('highlightToggle').classList.toggle('active', accessibilitySettings.highlightLinks);
+      saveSettings();
+    }
+
+    // Toggle Dyslexia Font
+    function toggleReadableFont() {
+      accessibilitySettings.readableFont = !accessibilitySettings.readableFont;
+      document.body.classList.toggle('readable-font', accessibilitySettings.readableFont);
+      document.getElementById('fontToggle').classList.toggle('active', accessibilitySettings.readableFont);
+      saveSettings();
+    }
+
+    // Toggle Letter Spacing
+    function toggleLetterSpacing() {
+      accessibilitySettings.letterSpacing = !accessibilitySettings.letterSpacing;
+      document.body.classList.toggle('letter-spacing-wide', accessibilitySettings.letterSpacing);
+      document.getElementById('spacingToggle').classList.toggle('active', accessibilitySettings.letterSpacing);
+      saveSettings();
+    }
+
+    // Toggle Line Height
+    function toggleLineHeight() {
+      accessibilitySettings.lineHeight = !accessibilitySettings.lineHeight;
+      document.body.classList.toggle('line-height-large', accessibilitySettings.lineHeight);
+      document.getElementById('lineHeightToggle').classList.toggle('active', accessibilitySettings.lineHeight);
+      saveSettings();
+    }
+
+    // Toggle Reading Mode
+    function toggleReadingMode() {
+      accessibilitySettings.readingMode = !accessibilitySettings.readingMode;
+      document.body.classList.toggle('reading-mode', accessibilitySettings.readingMode);
+      document.getElementById('readingModeToggle').classList.toggle('active', accessibilitySettings.readingMode);
+
+      if (accessibilitySettings.readingMode) {
+        updateReadingBand(window.innerHeight / 2);
+      }
+
+      saveSettings();
+    }
+
+    // Reset All Accessibility Settings
+    function resetAccessibility() {
+      accessibilitySettings = {
+        fontSize: 100,
+        highContrast: false,
+        darkMode: false,
+        largeCursor: false,
+        underlineLinks: false,
+        highlightLinks: false,
+        readableFont: false,
+        letterSpacing: false,
+        lineHeight: false,
+        readingMode: false,
+        lowVision: false
+      };
+      
+      // Remove all classes
+      document.body.className = '';
+      document.body.style.fontSize = '100%';
+      updateReadingBand(window.innerHeight / 2);
+      
+      // Reset all toggles
+      document.querySelectorAll('.toggle-switch').forEach(toggle => {
+        toggle.classList.remove('active');
+      });
+      
+      document.getElementById('fontSizeDisplay').textContent = '100%';
+      
+      saveSettings();
+      alert('All accessibility settings have been reset!');
+    }
+
+    // Save Settings to localStorage
+    function saveSettings() {
+      localStorage.setItem('accessibilitySettings', JSON.stringify(accessibilitySettings));
+    }
+
+    // Load Settings from localStorage
+    function loadSettings() {
+      const saved = localStorage.getItem('accessibilitySettings');
+      if (saved) {
+        accessibilitySettings = Object.assign({}, accessibilitySettings, JSON.parse(saved));
+      }
+    }
+
+    // Apply Settings on Page Load
+    function applySettings() {
+      // Apply font size
+      document.body.style.fontSize = accessibilitySettings.fontSize + '%';
+      document.getElementById('fontSizeDisplay').textContent = accessibilitySettings.fontSize + '%';
+      
+      // Apply all toggles
+      if (accessibilitySettings.highContrast) {
+        document.body.classList.add('high-contrast');
+        document.getElementById('contrastToggle').classList.add('active');
+      }
+      
+      if (accessibilitySettings.darkMode) {
+        document.body.classList.add('dark-mode');
+        document.getElementById('darkModeToggle').classList.add('active');
+      }
+      
+      if (accessibilitySettings.largeCursor) {
+        document.body.classList.add('large-cursor');
+        document.getElementById('cursorToggle').classList.add('active');
+      }
+      
+      if (accessibilitySettings.underlineLinks) {
+        document.body.classList.add('underline-links');
+        document.getElementById('underlineToggle').classList.add('active');
+      }
+      
+      if (accessibilitySettings.highlightLinks) {
+        document.body.classList.add('highlight-links');
+        document.getElementById('highlightToggle').classList.add('active');
+      }
+      
+      if (accessibilitySettings.readableFont) {
+        document.body.classList.add('readable-font');
+        document.getElementById('fontToggle').classList.add('active');
+      }
+      
+      if (accessibilitySettings.letterSpacing) {
+        document.body.classList.add('letter-spacing-wide');
+        document.getElementById('spacingToggle').classList.add('active');
+      }
+      
+      if (accessibilitySettings.lineHeight) {
+        document.body.classList.add('line-height-large');
+        document.getElementById('lineHeightToggle').classList.add('active');
+      }
+
+      if (accessibilitySettings.lowVision) {
+        document.body.classList.add('low-vision');
+        document.getElementById('lowVisionToggle').classList.add('active');
+      }
+
+      if (accessibilitySettings.readingMode) {
+        document.body.classList.add('reading-mode');
+        document.getElementById('readingModeToggle').classList.add('active');
+      }
+    }
+  </script>
+
+</body>
+</html>
+
+
+
+
+
