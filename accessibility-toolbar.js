@@ -1,12 +1,13 @@
 (function () {
   'use strict';
 
-  const VERSION = '1.0.0';
+  const VERSION = '1.1.0';
   const ROOT_ID = 'atw-root';
   const GLOBAL_STYLE_ID = 'atw-global-style';
   const FONT_LINK_ID = 'atw-opendyslexic-font';
   const DEFAULT_STORAGE_KEY = 'atw-accessibility-settings';
   const OPEN_DYSLEXIC_STYLESHEET = 'https://unpkg.com/@fontsource/opendyslexic/index.css';
+  const FONT_AWESOME_STYLESHEET = 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css';
   const PAGE_CLASSES = Object.freeze({
     highContrast: 'atw-high-contrast',
     darkMode: 'atw-dark-mode',
@@ -19,56 +20,75 @@
     lineHeight: 'atw-line-height-large',
     readingMode: 'atw-reading-mode'
   });
+  const HOST_THEME_CLASSES = Object.freeze({
+    highContrast: 'atw-theme-high-contrast',
+    darkMode: 'atw-theme-dark-mode',
+    lowVision: 'atw-theme-low-vision',
+    largeCursor: 'atw-theme-large-cursor',
+    readableFont: 'atw-theme-readable-font',
+    letterSpacing: 'atw-theme-letter-spacing',
+    lineHeight: 'atw-theme-line-height'
+  });
   const TOGGLE_DEFINITIONS = Object.freeze([
     {
       key: 'highContrast',
       label: 'High Contrast',
-      help: 'Black and white contrast mode'
+      iconClass: 'fa-adjust',
+      switchId: 'contrastToggle'
     },
     {
       key: 'darkMode',
       label: 'Dark Mode',
-      help: 'Reduce eye strain in low light'
+      iconClass: 'fa-moon-o',
+      switchId: 'darkModeToggle'
     },
     {
       key: 'lowVision',
       label: 'Low Vision Mode',
-      help: 'Black background with yellow text'
+      iconClass: 'fa-binoculars',
+      switchId: 'lowVisionToggle'
     },
     {
       key: 'largeCursor',
       label: 'Large Cursor',
-      help: 'Make the pointer easier to track'
+      iconClass: 'fa-mouse-pointer',
+      switchId: 'cursorToggle'
     },
     {
       key: 'underlineLinks',
       label: 'Underline Links',
-      help: 'Show links with strong underlines'
+      iconClass: 'fa-underline',
+      switchId: 'underlineToggle'
     },
     {
       key: 'highlightLinks',
       label: 'Highlight Links',
-      help: 'Add a highlight behind links'
+      iconClass: 'fa-lightbulb-o',
+      switchId: 'highlightToggle'
     },
     {
       key: 'readableFont',
       label: 'Dyslexia Font',
-      help: 'Switch to OpenDyslexic'
+      iconClass: 'fa-book',
+      switchId: 'fontToggle'
     },
     {
       key: 'letterSpacing',
       label: 'Letter Spacing',
-      help: 'Increase space between characters'
+      iconClass: 'fa-text-width',
+      switchId: 'spacingToggle'
     },
     {
       key: 'lineHeight',
       label: 'Line Height',
-      help: 'Increase space between lines'
+      iconClass: 'fa-align-justify',
+      switchId: 'lineHeightToggle'
     },
     {
       key: 'readingMode',
       label: 'Reading Mode',
-      help: 'Focus with a reading band'
+      iconClass: 'fa-eye',
+      switchId: 'readingModeToggle'
     }
   ]);
 
@@ -79,8 +99,7 @@
   let hostElement = null;
   let shadowRootNode = null;
   let menuOpen = false;
-  let originalRootFontSize = '';
-  let baseRootFontSizePixels = 16;
+  let originalBodyFontSize = '';
   let elements = {};
 
   const scriptDatasetConfig = readScriptDataset();
@@ -130,16 +149,12 @@
       overrides || {}
     );
 
-    const position = mergedConfig.position === 'bottom-right' ? 'bottom-right' : 'bottom-left';
-    const zIndex = parseInteger(mergedConfig.zIndex, 2147483000);
-    const readingBandSize = parseInteger(mergedConfig.readingBandSize, 130);
-
     return {
-      position: position,
+      position: mergedConfig.position === 'bottom-right' ? 'bottom-right' : 'bottom-left',
       accent: isValidCssColor(mergedConfig.accent) ? mergedConfig.accent : '#2563eb',
       storageKey: mergedConfig.storageKey || DEFAULT_STORAGE_KEY,
-      zIndex: zIndex,
-      readingBandSize: readingBandSize
+      zIndex: parseInteger(mergedConfig.zIndex, 2147483000),
+      readingBandSize: parseInteger(mergedConfig.readingBandSize, 130)
     };
   }
 
@@ -172,9 +187,13 @@
 
   function buildGlobalStyles() {
     return `
-body.${PAGE_CLASSES.highContrast},
-body.${PAGE_CLASSES.highContrast} :not(#${ROOT_ID}) {
-  background-color: #000 !important;
+body.${PAGE_CLASSES.highContrast} {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+body.${PAGE_CLASSES.highContrast} :not(#${ROOT_ID}):not(script):not(style) {
+  background: #000 !important;
   color: #fff !important;
   border-color: #fff !important;
   box-shadow: none !important;
@@ -194,27 +213,29 @@ body.${PAGE_CLASSES.highContrast} canvas {
   filter: grayscale(1) contrast(1.2) !important;
 }
 
-body.${PAGE_CLASSES.darkMode},
-body.${PAGE_CLASSES.darkMode} :not(#${ROOT_ID}) {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
+body.${PAGE_CLASSES.darkMode} {
+  background: #1a1a1a !important;
+  color: #fff !important;
+}
+
+body.${PAGE_CLASSES.darkMode} :not(#${ROOT_ID}):not(script):not(style) {
+  background-color: #111827 !important;
+  color: #fff !important;
+  border-color: #374151 !important;
 }
 
 body.${PAGE_CLASSES.darkMode} a {
-  color: #93c5fd !important;
+  color: #fff !important;
 }
 
-body.${PAGE_CLASSES.darkMode} img,
-body.${PAGE_CLASSES.darkMode} video,
-body.${PAGE_CLASSES.darkMode} svg,
-body.${PAGE_CLASSES.darkMode} canvas {
-  background: transparent !important;
+body.${PAGE_CLASSES.lowVision} {
+  background: #000 !important;
+  color: #ffeb3b !important;
+  font-size: 130% !important;
 }
 
-body.${PAGE_CLASSES.lowVision},
-body.${PAGE_CLASSES.lowVision} :not(#${ROOT_ID}) {
-  background-color: #000 !important;
+body.${PAGE_CLASSES.lowVision} :not(#${ROOT_ID}):not(script):not(style) {
+  background: #000 !important;
   color: #ffeb3b !important;
   border-color: #ffeb3b !important;
 }
@@ -224,24 +245,29 @@ body.${PAGE_CLASSES.lowVision} a {
   text-decoration: underline !important;
 }
 
+body.${PAGE_CLASSES.lowVision} button,
+body.${PAGE_CLASSES.lowVision} input,
+body.${PAGE_CLASSES.lowVision} select,
+body.${PAGE_CLASSES.lowVision} textarea {
+  background: #ffeb3b !important;
+  color: #000 !important;
+  border: 1px solid #ffeb3b !important;
+}
+
 body.${PAGE_CLASSES.largeCursor},
 body.${PAGE_CLASSES.largeCursor} * {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24'%3E%3Cpath fill='%232563eb' d='M5 3l6.75 15.2 2.24-5.16L19 11z'/%3E%3C/svg%3E") 2 2, auto !important;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100px' height='100px' viewBox='0 0 24 24'%3E%3Cpath fill='%231d4ed8' d='M8 3l4 16 2-7 7-2z'/%3E%3C/svg%3E"), auto !important;
 }
 
 body.${PAGE_CLASSES.underlineLinks} a {
   text-decoration: underline !important;
-  text-decoration-thickness: 2px !important;
-  text-underline-offset: 0.14em !important;
-  font-weight: 700 !important;
+  font-weight: bold !important;
 }
 
 body.${PAGE_CLASSES.highlightLinks} a {
   background: #ffeb3b !important;
-  color: #111827 !important;
-  padding: 0.08em 0.24em !important;
-  border-radius: 0.2em !important;
-  box-shadow: 0 0 0 1px rgba(17, 24, 39, 0.16) !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
 }
 
 body.${PAGE_CLASSES.readableFont},
@@ -278,47 +304,46 @@ body.${PAGE_CLASSES.lineHeight} * {
     hostElement.id = ROOT_ID;
     hostElement.className = config.position === 'bottom-right' ? 'atw-pos-right' : 'atw-pos-left';
     hostElement.style.setProperty('--atw-accent', config.accent);
+    hostElement.style.zIndex = String(config.zIndex);
     shadowRootNode = hostElement.attachShadow({ mode: 'open' });
     shadowRootNode.innerHTML = buildShadowMarkup();
     document.body.appendChild(hostElement);
 
     elements = {
       launcher: shadowRootNode.getElementById('atw-launcher'),
-      menu: shadowRootNode.getElementById('atw-menu'),
+      menu: shadowRootNode.getElementById('accessibilityMenu'),
       overlay: shadowRootNode.getElementById('atw-reading-overlay'),
-      fontSizeDisplay: shadowRootNode.getElementById('atw-font-size-display'),
+      fontSizeDisplay: shadowRootNode.getElementById('fontSizeDisplay'),
       fontDecrease: shadowRootNode.getElementById('atw-font-decrease'),
       fontIncrease: shadowRootNode.getElementById('atw-font-increase'),
-      resetButton: shadowRootNode.getElementById('atw-reset-button')
+      resetButton: shadowRootNode.getElementById('atw-reset-button'),
+      toggleButtons: Array.from(shadowRootNode.querySelectorAll('[data-setting]'))
     };
 
-    elements.overlay.style.setProperty('--atw-reading-band-size', config.readingBandSize + 'px');
-    elements.launcher.style.zIndex = String(config.zIndex);
-    elements.menu.style.zIndex = String(config.zIndex + 1);
-    elements.overlay.style.zIndex = String(config.zIndex - 1);
-
+    elements.overlay.style.setProperty('--reading-band-size', config.readingBandSize + 'px');
     bindWidgetEvents();
   }
 
   function buildShadowMarkup() {
     const toggleRows = TOGGLE_DEFINITIONS.map(function (definition) {
       return (
-        '<button class="atw-toggle" type="button" data-setting="' + definition.key + '" aria-pressed="false">' +
-          '<span class="atw-copy">' +
-            '<span class="atw-label">' + definition.label + '</span>' +
-            '<span class="atw-help">' + definition.help + '</span>' +
-          '</span>' +
-          '<span class="atw-switch" aria-hidden="true"><span class="atw-switch-knob"></span></span>' +
-        '</button>'
+        '<div class="menu-item">' +
+          '<button class="menu-toggle" type="button" data-setting="' + definition.key + '" aria-pressed="false">' +
+            '<span><i class="fa ' + definition.iconClass + '" aria-hidden="true"></i> ' + definition.label + '</span>' +
+            '<div class="toggle-switch" id="' + definition.switchId + '"></div>' +
+          '</button>' +
+        '</div>'
       );
     }).join('');
 
     return `
+      <link rel="stylesheet" href="${FONT_AWESOME_STYLESHEET}">
       <style>
         :host {
           all: initial;
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          color: #0f172a;
+          line-height: 1.6;
+          color: #333;
           --atw-accent: #2563eb;
         }
 
@@ -332,322 +357,443 @@ body.${PAGE_CLASSES.lineHeight} * {
           font: inherit;
         }
 
-        #atw-launcher {
+        .accessibility-button {
           position: fixed;
           bottom: 20px;
           left: 20px;
           width: 60px;
           height: 60px;
-          border: none;
-          border-radius: 999px;
           background: var(--atw-accent);
+          border: none;
+          border-radius: 50%;
           color: #fff;
-          font-size: 18px;
-          font-weight: 700;
-          letter-spacing: 0.03em;
-          display: inline-flex;
+          font-size: 28px;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+          display: flex;
           align-items: center;
           justify-content: center;
-          cursor: pointer;
-          box-shadow: 0 14px 28px rgba(15, 23, 42, 0.28);
-          transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+          transition: all 0.3s ease;
+          z-index: 2;
           padding: 0;
         }
 
-        :host(.atw-pos-right) #atw-launcher {
+        :host(.atw-pos-right) .accessibility-button {
           left: auto;
           right: 20px;
         }
 
-        #atw-launcher:hover {
-          transform: translateY(-2px) scale(1.04);
-          box-shadow: 0 20px 36px rgba(15, 23, 42, 0.32);
+        .accessibility-button:hover {
+          transform: scale(1.1) rotate(90deg);
+          box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
         }
 
-        #atw-launcher:focus-visible,
-        .atw-toggle:focus-visible,
-        .atw-font-button:focus-visible,
-        #atw-reset-button:focus-visible {
+        .accessibility-button:active {
+          transform: scale(0.95);
+        }
+
+        .accessibility-button:focus-visible,
+        .font-btn:focus-visible,
+        .menu-toggle:focus-visible,
+        .reset-btn:focus-visible {
           outline: 3px solid rgba(37, 99, 235, 0.35);
           outline-offset: 3px;
         }
 
-        #atw-menu {
+        .accessibility-menu {
           position: fixed;
-          bottom: 92px;
+          bottom: 90px;
           left: 20px;
-          width: min(320px, calc(100vw - 24px));
-          max-height: min(78vh, 720px);
-          overflow-y: auto;
           background: #fff;
-          border: 1px solid rgba(148, 163, 184, 0.35);
-          border-radius: 18px;
-          box-shadow: 0 24px 72px rgba(15, 23, 42, 0.24);
-          padding: 18px;
+          border-radius: 10px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          padding: 20px;
+          width: 280px;
           display: none;
+          z-index: 1;
+          max-height: 80vh;
+          overflow-y: auto;
         }
 
-        :host(.atw-pos-right) #atw-menu {
+        :host(.atw-pos-right) .accessibility-menu {
           left: auto;
           right: 20px;
         }
 
-        #atw-menu[data-open='true'] {
+        .accessibility-menu.active {
           display: block;
-          animation: atw-pop 0.18s ease-out;
+          animation: slideIn 0.3s ease;
         }
 
-        @keyframes atw-pop {
+        @keyframes slideIn {
           from {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(0);
           }
 
           to {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(-20px);
           }
         }
 
-        .atw-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          margin-bottom: 14px;
-        }
-
-        .atw-title {
+        .menu-header {
           font-size: 18px;
-          font-weight: 700;
-          color: #0f172a;
+          font-weight: bold;
+          color: #1d4ed8;
+          margin-bottom: 15px;
+          padding-bottom: 10px;
+          border-bottom: 2px solid var(--atw-accent);
         }
 
-        .atw-subtitle {
-          margin-top: 4px;
+        .menu-signature {
+          margin: 8px 0 12px;
+          text-align: center;
           font-size: 12px;
           color: #475569;
         }
 
-        .atw-section {
-          display: grid;
-          gap: 10px;
+        .menu-item {
+          margin: 12px 0;
+          padding: 10px;
+          border-radius: 5px;
+          transition: background 0.2s;
         }
 
-        .atw-font-row,
-        .atw-toggle {
+        .menu-item:hover {
+          background: #f8f9fa;
+        }
+
+        .menu-toggle {
           width: 100%;
-          border: 1px solid rgba(148, 163, 184, 0.3);
-          border-radius: 14px;
-          background: #f8fafc;
-        }
-
-        .atw-font-row {
-          padding: 12px 14px 14px;
-        }
-
-        .atw-row-header {
           display: flex;
-          align-items: flex-start;
+          align-items: center;
           justify-content: space-between;
-          gap: 10px;
-          margin-bottom: 10px;
-        }
-
-        .atw-copy {
-          display: grid;
-          gap: 2px;
+          cursor: pointer;
+          font-size: 14px;
+          color: #333;
+          background: transparent;
+          border: none;
+          padding: 0;
           text-align: left;
         }
 
-        .atw-label {
-          font-size: 14px;
-          font-weight: 700;
-          color: #0f172a;
-        }
-
-        .atw-help {
-          font-size: 12px;
-          line-height: 1.45;
-          color: #475569;
-        }
-
-        .atw-font-controls {
+        .menu-toggle span {
           display: flex;
           align-items: center;
-          gap: 10px;
         }
 
-        .atw-font-button {
-          min-width: 42px;
-          border: none;
-          border-radius: 10px;
-          background: var(--atw-accent);
-          color: #fff;
-          font-weight: 700;
-          cursor: pointer;
-          padding: 10px 12px;
-          transition: transform 0.18s ease, opacity 0.18s ease;
-        }
-
-        .atw-font-button:hover,
-        #atw-reset-button:hover {
-          transform: translateY(-1px);
-        }
-
-        #atw-font-size-display {
-          min-width: 58px;
+        .menu-item i {
+          margin-right: 10px;
+          width: 20px;
           text-align: center;
-          font-size: 14px;
-          font-weight: 700;
-          color: var(--atw-accent);
+          color: #1d4ed8;
         }
 
-        .atw-toggle {
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          padding: 12px 14px;
-          transition: border-color 0.18s ease, background 0.18s ease;
-        }
-
-        .atw-toggle:hover {
-          border-color: rgba(37, 99, 235, 0.3);
-        }
-
-        .atw-toggle[data-active='true'] {
-          background: #eff6ff;
-          border-color: rgba(37, 99, 235, 0.35);
-        }
-
-        .atw-switch {
+        .toggle-switch {
           position: relative;
-          width: 46px;
-          height: 26px;
-          border-radius: 999px;
-          background: #cbd5e1;
+          width: 50px;
+          height: 24px;
+          background: #ccc;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: background 0.3s;
           flex: 0 0 auto;
-          transition: background 0.18s ease;
         }
 
-        .atw-toggle[data-active='true'] .atw-switch {
+        .toggle-switch.active {
           background: var(--atw-accent);
         }
 
-        .atw-switch-knob {
+        .toggle-switch::after {
+          content: '';
           position: absolute;
-          top: 3px;
-          left: 3px;
+          top: 2px;
+          left: 2px;
           width: 20px;
           height: 20px;
-          border-radius: 50%;
           background: #fff;
-          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
-          transition: transform 0.18s ease;
+          border-radius: 50%;
+          transition: left 0.3s;
         }
 
-        .atw-toggle[data-active='true'] .atw-switch-knob {
-          transform: translateX(20px);
+        .toggle-switch.active::after {
+          left: 28px;
         }
 
-        #atw-reset-button {
-          width: 100%;
-          border: none;
-          border-radius: 12px;
-          background: #0f172a;
+        .font-controls {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          margin-top: 8px;
+        }
+
+        .font-btn {
+          background: var(--atw-accent);
           color: #fff;
+          border: none;
+          padding: 5px 12px;
+          border-radius: 5px;
           cursor: pointer;
-          padding: 12px 14px;
-          font-weight: 700;
-          margin-top: 4px;
-          transition: transform 0.18s ease, opacity 0.18s ease;
+          font-size: 14px;
+          transition: all 0.2s;
         }
 
-        #atw-reading-overlay {
+        .font-btn:hover {
+          background: #1d4ed8;
+          transform: scale(1.05);
+        }
+
+        .font-size-display {
+          font-weight: bold;
+          color: #1d4ed8;
+          min-width: 50px;
+          text-align: center;
+        }
+
+        .reset-btn {
+          width: 100%;
+          background: #6c757d;
+          color: #fff;
+          border: none;
+          padding: 10px;
+          border-radius: 5px;
+          cursor: pointer;
+          margin-top: 15px;
+          font-size: 14px;
+          font-weight: 600;
+          transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+          background: #5a6268;
+          transform: translateY(-2px);
+        }
+
+        .reading-overlay {
           position: fixed;
           inset: 0;
           pointer-events: none;
           opacity: 0;
-          transition: opacity 0.18s ease;
+          z-index: 0;
+          transition: opacity 0.2s ease;
           background: linear-gradient(
             to bottom,
             rgba(4, 10, 24, 0.8) 0%,
-            rgba(4, 10, 24, 0.8) calc(var(--atw-reading-y, 50vh) - (var(--atw-reading-band-size, 130px) / 2)),
-            rgba(4, 10, 24, 0.04) calc(var(--atw-reading-y, 50vh) - (var(--atw-reading-band-size, 130px) / 2)),
-            rgba(4, 10, 24, 0.04) calc(var(--atw-reading-y, 50vh) + (var(--atw-reading-band-size, 130px) / 2)),
-            rgba(4, 10, 24, 0.8) calc(var(--atw-reading-y, 50vh) + (var(--atw-reading-band-size, 130px) / 2)),
+            rgba(4, 10, 24, 0.8) calc(var(--reading-y, 50vh) - (var(--reading-band-size, 130px) / 2)),
+            rgba(4, 10, 24, 0.05) calc(var(--reading-y, 50vh) - (var(--reading-band-size, 130px) / 2)),
+            rgba(4, 10, 24, 0.05) calc(var(--reading-y, 50vh) + (var(--reading-band-size, 130px) / 2)),
+            rgba(4, 10, 24, 0.8) calc(var(--reading-y, 50vh) + (var(--reading-band-size, 130px) / 2)),
             rgba(4, 10, 24, 0.8) 100%
           );
         }
 
-        #atw-reading-overlay[data-active='true'] {
+        .reading-overlay.active {
           opacity: 1;
         }
 
-        @media (max-width: 640px) {
-          #atw-launcher {
-            bottom: 12px;
-            left: 12px;
-            width: 54px;
-            height: 54px;
+        :host(.atw-theme-dark-mode) .accessibility-menu {
+          background: #111827 !important;
+          color: #fff !important;
+          border: 1px solid #374151;
+        }
+
+        :host(.atw-theme-dark-mode) .menu-item:hover {
+          background: #1f2937 !important;
+        }
+
+        :host(.atw-theme-dark-mode) .menu-header,
+        :host(.atw-theme-dark-mode) .menu-toggle,
+        :host(.atw-theme-dark-mode) .menu-toggle span,
+        :host(.atw-theme-dark-mode) .font-size-display,
+        :host(.atw-theme-dark-mode) .menu-signature {
+          color: #fff !important;
+        }
+
+        :host(.atw-theme-dark-mode) .menu-item i {
+          color: #fff !important;
+        }
+
+        :host(.atw-theme-dark-mode) .font-btn {
+          background: var(--atw-accent) !important;
+          color: #fff !important;
+        }
+
+        :host(.atw-theme-dark-mode) .font-btn:hover {
+          background: #1d4ed8 !important;
+        }
+
+        :host(.atw-theme-dark-mode) .toggle-switch {
+          background: #4b5563;
+        }
+
+        :host(.atw-theme-low-vision) .accessibility-menu {
+          background: #000 !important;
+          color: #ffeb3b !important;
+          border: 1px solid #ffeb3b !important;
+        }
+
+        :host(.atw-theme-low-vision) .menu-item:hover {
+          background: #111 !important;
+        }
+
+        :host(.atw-theme-low-vision) .accessibility-button,
+        :host(.atw-theme-low-vision) .font-btn,
+        :host(.atw-theme-low-vision) .reset-btn {
+          background: #ffeb3b !important;
+          color: #000 !important;
+          border: 1px solid #ffeb3b !important;
+        }
+
+        :host(.atw-theme-low-vision) .toggle-switch {
+          background: #3f3f00 !important;
+          border: 1px solid #ffeb3b;
+        }
+
+        :host(.atw-theme-low-vision) .toggle-switch.active {
+          background: #ffeb3b !important;
+        }
+
+        :host(.atw-theme-low-vision) .toggle-switch::after {
+          background: #000 !important;
+          border: 1px solid #ffeb3b;
+        }
+
+        :host(.atw-theme-low-vision) .menu-toggle,
+        :host(.atw-theme-low-vision) .menu-item i,
+        :host(.atw-theme-low-vision) .font-size-display,
+        :host(.atw-theme-low-vision) .menu-header,
+        :host(.atw-theme-low-vision) .menu-signature {
+          color: #ffeb3b !important;
+        }
+
+        :host(.atw-theme-high-contrast) .accessibility-menu {
+          background: #000 !important;
+          color: #fff !important;
+          border: 2px solid #fff !important;
+        }
+
+        :host(.atw-theme-high-contrast) .accessibility-button,
+        :host(.atw-theme-high-contrast) .font-btn,
+        :host(.atw-theme-high-contrast) .reset-btn {
+          background: #fff !important;
+          color: #000 !important;
+          border: 1px solid #fff !important;
+        }
+
+        :host(.atw-theme-high-contrast) .toggle-switch {
+          background: #444 !important;
+          border: 1px solid #fff;
+        }
+
+        :host(.atw-theme-high-contrast) .toggle-switch.active {
+          background: #fff !important;
+        }
+
+        :host(.atw-theme-high-contrast) .toggle-switch::after {
+          background: #fff !important;
+          border: 1px solid #000;
+        }
+
+        :host(.atw-theme-high-contrast) .menu-item:hover {
+          background: #111 !important;
+        }
+
+        :host(.atw-theme-high-contrast) .menu-header,
+        :host(.atw-theme-high-contrast) .menu-toggle,
+        :host(.atw-theme-high-contrast) .menu-toggle span,
+        :host(.atw-theme-high-contrast) .menu-item i,
+        :host(.atw-theme-high-contrast) .font-size-display,
+        :host(.atw-theme-high-contrast) .menu-signature {
+          color: #fff !important;
+        }
+
+        :host(.atw-theme-readable-font),
+        :host(.atw-theme-readable-font) * {
+          font-family: 'OpenDyslexic', Arial, Helvetica, sans-serif !important;
+        }
+
+        :host(.atw-theme-letter-spacing),
+        :host(.atw-theme-letter-spacing) * {
+          letter-spacing: 0.12em !important;
+        }
+
+        :host(.atw-theme-line-height),
+        :host(.atw-theme-line-height) * {
+          line-height: 2 !important;
+        }
+
+        :host(.atw-theme-large-cursor),
+        :host(.atw-theme-large-cursor) * {
+          cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100px' height='100px' viewBox='0 0 24 24'%3E%3Cpath fill='%231d4ed8' d='M8 3l4 16 2-7 7-2z'/%3E%3C/svg%3E"), auto !important;
+        }
+
+        @media (max-width: 768px) {
+          .accessibility-menu {
+            width: 250px;
           }
 
-          :host(.atw-pos-right) #atw-launcher {
+          .accessibility-button {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .accessibility-button {
+            bottom: 10px;
+            left: 10px;
+          }
+
+          :host(.atw-pos-right) .accessibility-button {
             left: auto;
-            right: 12px;
+            right: 10px;
           }
 
-          #atw-menu {
-            bottom: 78px;
-            left: 12px;
-            width: calc(100vw - 24px);
-            max-height: 74vh;
+          .accessibility-menu {
+            bottom: 75px;
+            left: 10px;
+            width: calc(100vw - 20px);
           }
 
-          :host(.atw-pos-right) #atw-menu {
+          :host(.atw-pos-right) .accessibility-menu {
             left: auto;
-            right: 12px;
+            right: 10px;
           }
         }
       </style>
 
-      <div id="atw-reading-overlay" aria-hidden="true"></div>
+      <div class="reading-overlay" id="atw-reading-overlay" aria-hidden="true"></div>
 
-      <button id="atw-launcher" type="button" aria-label="Open accessibility toolbar" aria-controls="atw-menu" aria-expanded="false">
-        Aa
+      <button class="accessibility-button" id="atw-launcher" type="button" aria-label="Toggle Accessibility Menu" aria-controls="accessibilityMenu" aria-expanded="false">
+        <i class="fa fa-universal-access" aria-hidden="true"></i>
       </button>
 
-      <section id="atw-menu" role="dialog" aria-modal="false" aria-label="Accessibility toolbar">
-        <div class="atw-header">
+      <div class="accessibility-menu" id="accessibilityMenu" role="dialog" aria-modal="false" aria-label="Accessibility Options">
+        <div class="menu-header">
+          <i class="fa fa-universal-access" aria-hidden="true"></i> Accessibility Options
+        </div>
+
+        <div class="menu-item">
           <div>
-            <div class="atw-title">Accessibility Tools</div>
-            <div class="atw-subtitle">Reusable widget loaded from one script</div>
+            <span><i class="fa fa-font" aria-hidden="true"></i> Font Size</span>
+          </div>
+          <div class="font-controls">
+            <button class="font-btn" id="atw-font-decrease" type="button" aria-label="Decrease font size">A-</button>
+            <span class="font-size-display" id="fontSizeDisplay">100%</span>
+            <button class="font-btn" id="atw-font-increase" type="button" aria-label="Increase font size">A+</button>
           </div>
         </div>
 
-        <div class="atw-section">
-          <div class="atw-font-row">
-            <div class="atw-row-header">
-              <span class="atw-copy">
-                <span class="atw-label">Font Size</span>
-                <span class="atw-help">Increase or decrease page text size</span>
-              </span>
-              <span id="atw-font-size-display">100%</span>
-            </div>
+        ${toggleRows}
 
-            <div class="atw-font-controls">
-              <button class="atw-font-button" id="atw-font-decrease" type="button" aria-label="Decrease font size">A-</button>
-              <button class="atw-font-button" id="atw-font-increase" type="button" aria-label="Increase font size">A+</button>
-            </div>
-          </div>
+        <div class="menu-signature">Made with Love by Arshad Abdul, IITH</div>
 
-          ${toggleRows}
-
-          <button id="atw-reset-button" type="button">Reset All Settings</button>
-        </div>
-      </section>
+        <button class="reset-btn" id="atw-reset-button" type="button">
+          <i class="fa fa-refresh" aria-hidden="true"></i> Reset All Settings
+        </button>
+      </div>
     `;
   }
 
@@ -666,7 +812,7 @@ body.${PAGE_CLASSES.lineHeight} * {
 
     elements.resetButton.addEventListener('click', resetSettings);
 
-    shadowRootNode.querySelectorAll('[data-setting]').forEach(function (toggleButton) {
+    elements.toggleButtons.forEach(function (toggleButton) {
       toggleButton.addEventListener('click', function () {
         toggleSetting(toggleButton.getAttribute('data-setting'));
       });
@@ -713,21 +859,19 @@ body.${PAGE_CLASSES.lineHeight} * {
   }
 
   function updateReadingBand(yPosition) {
-    elements.overlay.style.setProperty('--atw-reading-y', yPosition + 'px');
+    elements.overlay.style.setProperty('--reading-y', yPosition + 'px');
   }
 
   function setMenuOpen(nextValue) {
     menuOpen = nextValue;
-    elements.menu.dataset.open = menuOpen ? 'true' : 'false';
+    elements.menu.classList.toggle('active', menuOpen);
     elements.launcher.setAttribute('aria-expanded', menuOpen ? 'true' : 'false');
   }
 
   function changeFontSize(direction) {
     if (direction === 'increase' && state.fontSize < 200) {
       state.fontSize += 10;
-    }
-
-    if (direction === 'decrease' && state.fontSize > 80) {
+    } else if (direction === 'decrease' && state.fontSize > 80) {
       state.fontSize -= 10;
     }
 
@@ -770,13 +914,12 @@ body.${PAGE_CLASSES.lineHeight} * {
   }
 
   function applyState() {
-    const rootElement = document.documentElement;
     const bodyElement = document.body;
 
     if (state.fontSize === 100) {
-      rootElement.style.fontSize = originalRootFontSize;
+      bodyElement.style.fontSize = originalBodyFontSize;
     } else {
-      rootElement.style.fontSize = baseRootFontSizePixels * (state.fontSize / 100) + 'px';
+      bodyElement.style.fontSize = state.fontSize + '%';
     }
 
     bodyElement.classList.toggle(PAGE_CLASSES.highContrast, state.highContrast);
@@ -790,12 +933,14 @@ body.${PAGE_CLASSES.lineHeight} * {
     bodyElement.classList.toggle(PAGE_CLASSES.lineHeight, state.lineHeight);
     bodyElement.classList.toggle(PAGE_CLASSES.readingMode, state.readingMode);
 
+    syncHostThemeClasses();
+
     if (state.readableFont) {
       ensureOpenDyslexicStylesheet();
     }
 
     elements.fontSizeDisplay.textContent = state.fontSize + '%';
-    elements.overlay.dataset.active = state.readingMode ? 'true' : 'false';
+    elements.overlay.classList.toggle('active', state.readingMode);
 
     if (state.readingMode) {
       updateReadingBand(window.innerHeight / 2);
@@ -804,12 +949,29 @@ body.${PAGE_CLASSES.lineHeight} * {
     syncToggleUi();
   }
 
+  function syncHostThemeClasses() {
+    hostElement.classList.toggle(HOST_THEME_CLASSES.highContrast, state.highContrast);
+    hostElement.classList.toggle(HOST_THEME_CLASSES.darkMode, state.darkMode);
+    hostElement.classList.toggle(HOST_THEME_CLASSES.lowVision, state.lowVision);
+    hostElement.classList.toggle(HOST_THEME_CLASSES.largeCursor, state.largeCursor);
+    hostElement.classList.toggle(HOST_THEME_CLASSES.readableFont, state.readableFont);
+    hostElement.classList.toggle(HOST_THEME_CLASSES.letterSpacing, state.letterSpacing);
+    hostElement.classList.toggle(HOST_THEME_CLASSES.lineHeight, state.lineHeight);
+  }
+
   function syncToggleUi() {
-    shadowRootNode.querySelectorAll('[data-setting]').forEach(function (toggleButton) {
-      const settingName = toggleButton.getAttribute('data-setting');
-      const isActive = Boolean(state[settingName]);
-      toggleButton.dataset.active = isActive ? 'true' : 'false';
-      toggleButton.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    TOGGLE_DEFINITIONS.forEach(function (definition) {
+      const toggleButton = shadowRootNode.querySelector('[data-setting="' + definition.key + '"]');
+      const toggleSwitch = shadowRootNode.getElementById(definition.switchId);
+      const isActive = Boolean(state[definition.key]);
+
+      if (toggleButton) {
+        toggleButton.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      }
+
+      if (toggleSwitch) {
+        toggleSwitch.classList.toggle('active', isActive);
+      }
     });
   }
 
@@ -829,8 +991,7 @@ body.${PAGE_CLASSES.lineHeight} * {
         return getDefaultState();
       }
 
-      const parsedState = JSON.parse(rawState);
-      return Object.assign(getDefaultState(), parsedState || {});
+      return Object.assign(getDefaultState(), JSON.parse(rawState) || {});
     } catch (error) {
       return getDefaultState();
     }
@@ -860,8 +1021,7 @@ body.${PAGE_CLASSES.lineHeight} * {
       return;
     }
 
-    originalRootFontSize = document.documentElement.style.fontSize;
-    baseRootFontSizePixels = parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
+    originalBodyFontSize = document.body.style.fontSize;
 
     injectGlobalStyles();
     buildWidget();
@@ -903,7 +1063,7 @@ body.${PAGE_CLASSES.lineHeight} * {
     document.removeEventListener('touchmove', handleTouchMove);
 
     removePageClasses();
-    document.documentElement.style.fontSize = originalRootFontSize;
+    document.body.style.fontSize = originalBodyFontSize;
 
     if (hostElement && hostElement.parentNode) {
       hostElement.parentNode.removeChild(hostElement);
