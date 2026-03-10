@@ -765,13 +765,11 @@
 
       <div class="instructions">
         <h2>📋 Integration Instructions</h2>
-        <p>Follow these simple steps to add the Accessibility Toolbar to your website:</p>
+        <p>The fastest way to use this toolbar is the one-line embed below. Manual HTML, CSS, and JavaScript integration is still available further down the page if you want full control.</p>
         <ol>
-          <li>Copy the <strong>HTML code</strong> for the button and menu</li>
-          <li>Copy the <strong>CSS styles</strong> to your stylesheet</li>
-          <li>Copy the <strong>JavaScript code</strong> for functionality</li>
-          <li>Include <strong>Font Awesome</strong> and <strong>OpenDyslexic CDN</strong> links</li>
-          <li>Customize colors and position as needed</li>
+          <li>Paste the one-line embed script into your website</li>
+          <li>Load the page and the toolbar will appear automatically</li>
+          <li>Use manual integration below only if you want to customize the full source</li>
         </ol>
       </div>
 
@@ -780,6 +778,16 @@
       </div>
 
       <div class="code-section">
+        <h3>
+          <span>0. One-Line Embed</span>
+          <button class="copy-button" onclick="copyCode('embed-code')">
+            <i class="fa fa-copy"></i> Copy Code
+          </button>
+        </h3>
+        <div class="code-block">
+          <pre id="embed-code"><code>&lt;script src="https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@main/accessibility-toolbar.js"&gt;&lt;/script&gt;</code></pre>
+        </div>
+
         <h3>
           <span>1. HTML Code</span>
           <button class="copy-button" onclick="copyCode('html-code')">
