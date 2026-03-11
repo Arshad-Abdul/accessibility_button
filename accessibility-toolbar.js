@@ -315,7 +315,7 @@ body.${PAGE_CLASSES.lineHeight} * {
       overlay: shadowRootNode.getElementById('atw-reading-overlay'),
       fontSizeDisplay: shadowRootNode.getElementById('fontSizeDisplay'),
       fontDecrease: shadowRootNode.getElementById('atw-font-decrease'),
-      fontIncrease: shadowRootNode.getElementById('atw-font-increase'),
+      fontIncrease: shadowRootNode.getElementById('atw-font-increase'),     
       resetButton: shadowRootNode.getElementById('atw-reset-button'),
       toggleButtons: Array.from(shadowRootNode.querySelectorAll('[data-setting]'))
     };

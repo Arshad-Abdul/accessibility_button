@@ -252,6 +252,55 @@
       color: #475569;
     }
 
+    .coffee-box {
+      margin: 10px 0 14px;
+      padding: 12px;
+      border: 1px solid #d1fae5;
+      border-radius: 8px;
+      background: #f0fdfa;
+      text-align: center;
+    }
+
+    .coffee-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--toolbar-accent-strong);
+      margin-bottom: 6px;
+    }
+
+    .coffee-title i {
+      margin-right: 6px;
+      color: var(--toolbar-accent);
+    }
+
+    .coffee-upi {
+      margin: 0 0 10px;
+      font-size: 12px;
+      color: #0f172a;
+      word-break: break-all;
+    }
+
+    .upi-copy-btn {
+      background: var(--toolbar-accent);
+      color: #fff;
+      border: none;
+      padding: 7px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .upi-copy-btn:hover {
+      background: var(--toolbar-accent-strong);
+      transform: translateY(-1px);
+    }
+
+    .upi-copy-btn.copied {
+      background: #15803d;
+    }
+
     .menu-item {
       margin: 12px 0;
       padding: 10px;
@@ -443,6 +492,21 @@
       color: #fff !important;
     }
 
+    body.dark-mode .coffee-box {
+      background: #1f2937 !important;
+      border-color: #374151 !important;
+    }
+
+    body.dark-mode .coffee-title,
+    body.dark-mode .coffee-upi {
+      color: #fff !important;
+    }
+
+    body.dark-mode .upi-copy-btn {
+      background: var(--toolbar-accent) !important;
+      color: #fff !important;
+    }
+
     body.dark-mode .font-btn {
       background: var(--toolbar-accent) !important;
       color: #fff !important;
@@ -520,12 +584,44 @@
       color: #ffeb3b !important;
     }
 
+    body.low-vision .coffee-box {
+      background: #000 !important;
+      border-color: #ffeb3b !important;
+    }
+
+    body.low-vision .coffee-title,
+    body.low-vision .coffee-upi {
+      color: #ffeb3b !important;
+    }
+
+    body.low-vision .upi-copy-btn {
+      background: #ffeb3b !important;
+      color: #000 !important;
+      border: 1px solid #ffeb3b !important;
+    }
+
     body.large-cursor * {
       cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 24 24'%3E%3Cpath d='M2%202V19L7%2014L10%2022L13%2021L10%2013H18L2%202Z' fill='white' stroke='black' stroke-width='1.4' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, auto !important;
     }
 
     body.high-contrast .menu-signature {
       color: #fff !important;
+    }
+
+    body.high-contrast .coffee-box {
+      background: #000 !important;
+      border-color: #fff !important;
+    }
+
+    body.high-contrast .coffee-title,
+    body.high-contrast .coffee-upi {
+      color: #fff !important;
+    }
+
+    body.high-contrast .upi-copy-btn {
+      background: #fff !important;
+      color: #000 !important;
+      border: 1px solid #fff !important;
     }
 
     .reading-overlay {
@@ -782,22 +878,29 @@
         <strong>💡 Note:</strong> This toolbar is fully WCAG 2.1 compliant and uses localStorage to remember user preferences across sessions. All settings persist until the user resets them.
       </div>
 
+      <div class="coffee-box">
+        <div class="coffee-title"><i class="fa fa-coffee"></i> Buy Me a Coffee</div>        
+        <button class="upi-copy-btn" type="button" onclick="copyText('7725991261@ybl', this)">
+          <i class="fa fa-copy"></i> Copy UPI ID
+        </button>
+      </div>
+
       <div class="code-section">
         <h3>
           <span>1. One-Line Embed</span>
-          <button class="copy-button" onclick="copyCode('embed-code')">
+          <button class="copy-button" onclick="copyCode('embed-code', this)">
             <i class="fa fa-copy"></i> Copy Code
           </button>
         </h3>
         <div class="code-block">
-          <pre id="embed-code"><code>&lt;script src="https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@9475063c69f1c2e9cd1b461618619a5c8038c969/accessibility-toolbar.js"&gt;&lt;/script&gt;</code></pre>
+          <pre id="embed-code"><code>&lt;script src="https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@main/accessibility-toolbar.js"&gt;&lt;/script&gt;</code></pre>
         </div>
 
        
 
         <h3>
           <span>2. Include Required CDN Links</span>
-          <button class="copy-button" onclick="copyCode('fontawesome-code')">
+          <button class="copy-button" onclick="copyCode('fontawesome-code', this)">
             <i class="fa fa-copy"></i> Copy Code
           </button>
         </h3>
@@ -887,23 +990,73 @@
 
   <script>
     // Copy Code Functionality
-    function copyCode(elementId) {
+    function copyCode(elementId, triggerButton) {
       const codeElement = document.getElementById(elementId);
-      const code = codeElement.textContent;
-      
-      navigator.clipboard.writeText(code).then(function() {
-        const button = event.target.closest('.copy-button');
-        const originalText = button.innerHTML;
-        button.innerHTML = '<i class="fa fa-check"></i> Copied!';
-        button.classList.add('copied');
-        
-        setTimeout(function() {
-          button.innerHTML = originalText;
-          button.classList.remove('copied');
-        }, 2000);
-      }).catch(function(err) {
-        alert('Failed to copy code. Please copy manually.');
+
+      if (!codeElement) {
+        return;
+      }
+
+      copyText(codeElement.textContent, triggerButton);
+    }
+
+    function copyText(textValue, triggerButton) {
+      writeTextToClipboard(textValue).then(function() {
+        flashCopyState(triggerButton);
+      }).catch(function() {
+        alert('Failed to copy text. Please copy manually.');
       });
+    }
+
+    function writeTextToClipboard(textValue) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(textValue);
+      }
+
+      return new Promise(function(resolve, reject) {
+        const helperTextarea = document.createElement('textarea');
+        helperTextarea.value = textValue;
+        helperTextarea.setAttribute('readonly', '');
+        helperTextarea.style.position = 'fixed';
+        helperTextarea.style.top = '-1000px';
+        helperTextarea.style.opacity = '0';
+
+        document.body.appendChild(helperTextarea);
+        helperTextarea.focus();
+        helperTextarea.select();
+        helperTextarea.setSelectionRange(0, helperTextarea.value.length);
+
+        let copied = false;
+        try {
+          copied = document.execCommand('copy');
+        } catch (error) {
+          copied = false;
+        }
+
+        document.body.removeChild(helperTextarea);
+
+        if (copied) {
+          resolve();
+        } else {
+          reject(new Error('Clipboard copy failed'));
+        }
+      });
+    }
+
+    function flashCopyState(triggerButton) {
+      if (!triggerButton) {
+        return;
+      }
+
+      const originalText = triggerButton.dataset.originalText || triggerButton.innerHTML;
+      triggerButton.dataset.originalText = originalText;
+      triggerButton.innerHTML = '<i class="fa fa-check"></i> Copied!';
+      triggerButton.classList.add('copied');
+
+      setTimeout(function() {
+        triggerButton.innerHTML = triggerButton.dataset.originalText;
+        triggerButton.classList.remove('copied');
+      }, 2000);
     }
 
     // Accessibility Settings State

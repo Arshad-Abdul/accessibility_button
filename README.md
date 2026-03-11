@@ -7,37 +7,45 @@ Reusable accessibility toolbar for websites with a one-line embed option. This r
 Add this line to any website:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@9475063c69f1c2e9cd1b461618619a5c8038c969/accessibility-toolbar.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@main/accessibility-toolbar.js"></script>
 ```
 
 If you specifically want a one-line JavaScript loader instead of a direct script tag, use:
 
 ```html
-<script>!function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@9475063c69f1c2e9cd1b461618619a5c8038c969/accessibility-toolbar.js';document.head.appendChild(s)}();</script>
+<script>!function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@main/accessibility-toolbar.js';document.head.appendChild(s)}();</script>
 ```
 
 If jsDelivr is blocked on the target site, this fallback also serves the same file:
 
 ```html
-<script src="https://rawcdn.githack.com/Arshad-Abdul/accessibility_button/9475063c69f1c2e9cd1b461618619a5c8038c969/accessibility-toolbar.js"></script>
+<script src="https://rawcdn.githack.com/Arshad-Abdul/accessibility_button/main/accessibility-toolbar.js"></script>
 ```
 
-These example URLs are pinned to the current published commit so they bypass stale branch-level CDN cache. Update the hash when you publish a new version.
+These example URLs follow the main branch so your latest pushes are picked up automatically. If CDN cache delays an update, purge jsDelivr once:
+
+https://purge.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@main/accessibility-toolbar.js
 
 ## One-Line Customization
 
 You can keep it to one line and still customize the widget with data attributes:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@9475063c69f1c2e9cd1b461618619a5c8038c969/accessibility-toolbar.js" data-position="bottom-right" data-accent="#0f766e" data-storage-key="site-a11y" data-reading-band-size="150"></script>
+<script src="https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@main/accessibility-toolbar.js" data-position="bottom-right" data-accent="#0f766e" data-storage-key="site-a11y" data-reading-band-size="150"></script>
 ```
 
 Supported attributes:
 
 - `data-position="bottom-left"` or `data-position="bottom-right"`
-- `data-accent="#2563eb"` for the launcher and action color
+- `data-accent="#0d9488"` for the launcher and action color
 - `data-storage-key="your-key"` to avoid collisions with another embed
 - `data-reading-band-size="130"` to adjust the reading overlay strip height
+
+## Buy Me a Coffee
+
+If this project helps you, you can support me here:
+
+- UPI ID: 7725991261@ybl
 
 ## Features
 
