@@ -140,7 +140,7 @@
     const mergedConfig = Object.assign(
       {
         position: 'bottom-left',
-        accent: '#2563eb',
+        accent: '#0d9488',
         storageKey: DEFAULT_STORAGE_KEY,
         zIndex: 2147483000,
         readingBandSize: 130
@@ -151,7 +151,7 @@
 
     return {
       position: mergedConfig.position === 'bottom-right' ? 'bottom-right' : 'bottom-left',
-      accent: isValidCssColor(mergedConfig.accent) ? mergedConfig.accent : '#2563eb',
+      accent: isValidCssColor(mergedConfig.accent) ? mergedConfig.accent : '#0d9488',
       storageKey: mergedConfig.storageKey || DEFAULT_STORAGE_KEY,
       zIndex: parseInteger(mergedConfig.zIndex, 2147483000),
       readingBandSize: parseInteger(mergedConfig.readingBandSize, 130)
@@ -256,7 +256,7 @@ body.${PAGE_CLASSES.lowVision} textarea {
 
 body.${PAGE_CLASSES.largeCursor},
 body.${PAGE_CLASSES.largeCursor} * {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100px' height='100px' viewBox='0 0 24 24'%3E%3Cpath fill='%231d4ed8' d='M8 3l4 16 2-7 7-2z'/%3E%3C/svg%3E"), auto !important;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 24 24'%3E%3Cpath d='M2%202V19L7%2014L10%2022L13%2021L10%2013H18L2%202Z' fill='white' stroke='black' stroke-width='1.4' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, auto !important;
 }
 
 body.${PAGE_CLASSES.underlineLinks} a {
@@ -344,7 +344,7 @@ body.${PAGE_CLASSES.lineHeight} * {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
           line-height: 1.6;
           color: #333;
-          --atw-accent: #2563eb;
+          --atw-accent: #0d9488;
         }
 
         *,
@@ -369,7 +369,7 @@ body.${PAGE_CLASSES.lineHeight} * {
           color: #fff;
           font-size: 28px;
           cursor: pointer;
-          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+          box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -385,7 +385,7 @@ body.${PAGE_CLASSES.lineHeight} * {
 
         .accessibility-button:hover {
           transform: scale(1.1) rotate(90deg);
-          box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+          box-shadow: 0 6px 20px rgba(13, 148, 136, 0.5);
         }
 
         .accessibility-button:active {
@@ -396,7 +396,7 @@ body.${PAGE_CLASSES.lineHeight} * {
         .font-btn:focus-visible,
         .menu-toggle:focus-visible,
         .reset-btn:focus-visible {
-          outline: 3px solid rgba(37, 99, 235, 0.35);
+          outline: 3px solid rgba(13, 148, 136, 0.35);
           outline-offset: 3px;
         }
 
@@ -440,7 +440,7 @@ body.${PAGE_CLASSES.lineHeight} * {
         .menu-header {
           font-size: 18px;
           font-weight: bold;
-          color: #1d4ed8;
+          color: var(--atw-accent);
           margin-bottom: 15px;
           padding-bottom: 10px;
           border-bottom: 2px solid var(--atw-accent);
@@ -487,7 +487,7 @@ body.${PAGE_CLASSES.lineHeight} * {
           margin-right: 10px;
           width: 20px;
           text-align: center;
-          color: #1d4ed8;
+          color: var(--atw-accent);
         }
 
         .toggle-switch {
@@ -540,13 +540,13 @@ body.${PAGE_CLASSES.lineHeight} * {
         }
 
         .font-btn:hover {
-          background: #1d4ed8;
+          background: #0f766e;
           transform: scale(1.05);
         }
 
         .font-size-display {
           font-weight: bold;
-          color: #1d4ed8;
+          color: var(--atw-accent);
           min-width: 50px;
           text-align: center;
         }
@@ -620,7 +620,7 @@ body.${PAGE_CLASSES.lineHeight} * {
         }
 
         :host(.atw-theme-dark-mode) .font-btn:hover {
-          background: #1d4ed8 !important;
+          background: #0f766e !important;
         }
 
         :host(.atw-theme-dark-mode) .toggle-switch {
@@ -725,7 +725,7 @@ body.${PAGE_CLASSES.lineHeight} * {
 
         :host(.atw-theme-large-cursor),
         :host(.atw-theme-large-cursor) * {
-          cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100px' height='100px' viewBox='0 0 24 24'%3E%3Cpath fill='%231d4ed8' d='M8 3l4 16 2-7 7-2z'/%3E%3C/svg%3E"), auto !important;
+          cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 24 24'%3E%3Cpath d='M2%202V19L7%2014L10%2022L13%2021L10%2013H18L2%202Z' fill='white' stroke='black' stroke-width='1.4' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, auto !important;
         }
 
         @media (max-width: 768px) {
@@ -788,8 +788,8 @@ body.${PAGE_CLASSES.lineHeight} * {
 
         ${toggleRows}
 
-        <div class="menu-signature">Made with Love by Arshad Abdul, IITH</div>
-
+        <div class="menu-signature">Made with Love by <a href="https://www.linkedin.com/in/arshad-abdul-6a3807253/">Arshad Abdul</a>, IITH</div>
+        <p class="menu-signature"> Presented at <a href="https://library.iith.ac.in/events/aidl2026/">AIDL 2026 Symposium</a></p>
         <button class="reset-btn" id="atw-reset-button" type="button">
           <i class="fa fa-refresh" aria-hidden="true"></i> Reset All Settings
         </button>

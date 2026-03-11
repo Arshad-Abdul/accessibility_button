@@ -28,6 +28,10 @@
       transition: all 0.3s ease;
       --reading-y: 50vh;
       --reading-band-size: 130px;
+      --toolbar-accent: #0d9488;
+      --toolbar-accent-strong: #0f766e;
+      --toolbar-accent-soft: rgba(13, 148, 136, 0.35);
+      --toolbar-accent-soft-hover: rgba(13, 148, 136, 0.5);
     }
 
     .container {
@@ -177,13 +181,13 @@
       left: 20px;
       width: 60px;
       height: 60px;
-      background: #2563eb;
+      background: var(--toolbar-accent);
       border: none;
       border-radius: 50%;
       color: white;
       font-size: 28px;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+      box-shadow: 0 4px 12px var(--toolbar-accent-soft);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -194,7 +198,7 @@
 
     .accessibility-button:hover {
       transform: scale(1.1) rotate(90deg);
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+      box-shadow: 0 6px 20px var(--toolbar-accent-soft-hover);
     }
 
     .accessibility-button:active {
@@ -235,10 +239,10 @@
     .menu-header {
       font-size: 18px;
       font-weight: bold;
-      color: #1d4ed8;
+      color: var(--toolbar-accent);
       margin-bottom: 15px;
       padding-bottom: 10px;
-      border-bottom: 2px solid #2563eb;
+      border-bottom: 2px solid var(--toolbar-accent);
     }
 
     .menu-signature {
@@ -272,7 +276,7 @@
       margin-right: 10px;
       width: 20px;
       text-align: center;
-      color: #1d4ed8;
+      color: var(--toolbar-accent);
     }
 
     .toggle-switch {
@@ -286,7 +290,7 @@
     }
 
     .toggle-switch.active {
-      background: #2563eb;
+      background: var(--toolbar-accent);
     }
 
     .toggle-switch::after {
@@ -313,7 +317,7 @@
     }
 
     .font-btn {
-      background: #2563eb;
+      background: var(--toolbar-accent);
       color: white;
       border: none;
       padding: 5px 12px;
@@ -324,13 +328,13 @@
     }
 
     .font-btn:hover {
-      background: #1d4ed8;
+      background: var(--toolbar-accent-strong);
       transform: scale(1.05);
     }
 
     .font-size-display {
       font-weight: bold;
-      color: #1d4ed8;
+      color: var(--toolbar-accent);
       min-width: 50px;
       text-align: center;
     }
@@ -440,12 +444,12 @@
     }
 
     body.dark-mode .font-btn {
-      background: #2563eb !important;
+      background: var(--toolbar-accent) !important;
       color: #fff !important;
     }
 
     body.dark-mode .font-btn:hover {
-      background: #1d4ed8 !important;
+      background: var(--toolbar-accent-strong) !important;
     }
 
     body.dark-mode .toggle-switch {
@@ -517,7 +521,7 @@
     }
 
     body.large-cursor * {
-      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100px" height="100px" viewBox="0 0 24 24"><path fill="%231d4ed8" d="M8 3l4 16 2-7 7-2z"/></svg>'), auto !important;
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 24 24'%3E%3Cpath d='M2%202V19L7%2014L10%2022L13%2021L10%2013H18L2%202Z' fill='white' stroke='black' stroke-width='1.4' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, auto !important;
     }
 
     body.high-contrast .menu-signature {
@@ -716,7 +720,8 @@
       </label>
     </div>
 
-    <div class="menu-signature">Made with Love by Arshad Abdul, IITH</div>
+    <div class="menu-signature">Made with Love by <a href="https://www.linkedin.com/in/arshad-abdul-6a3807253/">Arshad Abdul</a>, IITH</div>
+    <p class="menu-signature"> Presented at <a href="https://library.iith.ac.in/events/aidl2026/">AIDL 2026 Symposium</a></p>
 
     <button class="reset-btn" onclick="resetAccessibility()">
       <i class="fa fa-refresh"></i> Reset All Settings
@@ -735,7 +740,7 @@
       
       <div class="demo-section">
         <h2>🎯 Try It Now!</h2>
-        <p>Click the <strong>accessibility button (♿)</strong> in the top-right corner to open the toolbar and test all features!</p>
+        <p>Click the <strong>accessibility button (♿)</strong> in the tbottom-left corner to open the toolbar and test all features!</p>
         
         <div class="feature-list">
           <h3>Available Features:</h3>
@@ -765,7 +770,7 @@
 
       <div class="instructions">
         <h2>📋 Integration Instructions</h2>
-        <p>The fastest way to use this toolbar is the one-line embed below. Manual HTML, CSS, and JavaScript integration is still available further down the page if you want full control.</p>
+        <p>The fastest way to use this toolbar is the one-line embed below.</p>
         <ol>
           <li>Paste the one-line embed script into your website</li>
           <li>Load the page and the toolbar will appear automatically</li>
