@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const VERSION = '1.1.1';
+  const VERSION = '1.2.0';
   const ROOT_ID = 'atw-root';
   const GLOBAL_STYLE_ID = 'atw-global-style';
   const FONT_LINK_ID = 'atw-opendyslexic-font';
@@ -103,6 +103,7 @@
   let originalBodyFontSizePriority = '';
   let originalRootFontSize = '';
   let originalRootFontSizePriority = '';
+  let strongFontScaleRecords = new Map();
   let elements = {};
 
   const scriptDatasetConfig = readScriptDataset();
@@ -135,7 +136,8 @@
       accent: activeScript.dataset.accent,
       storageKey: activeScript.dataset.storageKey,
       zIndex: activeScript.dataset.zIndex,
-      readingBandSize: activeScript.dataset.readingBandSize
+      readingBandSize: activeScript.dataset.readingBandSize,
+      fontScaleMode: activeScript.dataset.fontScaleMode
     };
   }
 
@@ -146,7 +148,8 @@
         accent: '#0d9488',
         storageKey: DEFAULT_STORAGE_KEY,
         zIndex: 2147483000,
-        readingBandSize: 130
+        readingBandSize: 130,
+        fontScaleMode: 'normal'
       },
       scriptDatasetConfig,
       overrides || {}
@@ -157,8 +160,13 @@
       accent: isValidCssColor(mergedConfig.accent) ? mergedConfig.accent : '#0d9488',
       storageKey: mergedConfig.storageKey || DEFAULT_STORAGE_KEY,
       zIndex: parseInteger(mergedConfig.zIndex, 2147483000),
-      readingBandSize: parseInteger(mergedConfig.readingBandSize, 130)
+      readingBandSize: parseInteger(mergedConfig.readingBandSize, 130),
+      fontScaleMode: normalizeFontScaleMode(mergedConfig.fontScaleMode)
     };
+  }
+
+  function normalizeFontScaleMode(value) {
+    return value === 'strong' ? 'strong' : 'normal';
   }
 
   function parseInteger(value, fallbackValue) {
@@ -939,6 +947,12 @@ body.${PAGE_CLASSES.lineHeight} * {
     bodyElement.classList.toggle(PAGE_CLASSES.lineHeight, state.lineHeight);
     bodyElement.classList.toggle(PAGE_CLASSES.readingMode, state.readingMode);
 
+    if (config.fontScaleMode === 'strong') {
+      applyStrongFontScaling();
+    } else {
+      clearStrongFontScaling();
+    }
+
     syncHostThemeClasses();
 
     if (state.readableFont) {
@@ -962,6 +976,92 @@ body.${PAGE_CLASSES.lineHeight} * {
     }
 
     styleDeclaration.removeProperty('font-size');
+  }
+
+  function applyStrongFontScaling() {
+    if (state.fontSize === 100) {
+      clearStrongFontScaling();
+      return;
+    }
+
+    const rootElement = document.documentElement;
+    const bodyElement = document.body;
+    const scaleFactor = state.fontSize / 100;
+
+    // Measure each element at baseline page sizing, then force the scaled size.
+    restoreFontSizeDeclaration(rootElement.style, originalRootFontSize, originalRootFontSizePriority);
+    restoreFontSizeDeclaration(bodyElement.style, originalBodyFontSize, originalBodyFontSizePriority);
+
+    const candidateElements = Array.from(bodyElement.querySelectorAll('*')).filter(isStrongFontScaleCandidate);
+    const baselineSizeMap = new Map();
+
+    candidateElements.forEach(function (element) {
+      const computedFontSize = parseFloat(window.getComputedStyle(element).fontSize);
+
+      if (!Number.isFinite(computedFontSize) || computedFontSize <= 0) {
+        return;
+      }
+
+      baselineSizeMap.set(element, computedFontSize);
+
+      if (!strongFontScaleRecords.has(element)) {
+        strongFontScaleRecords.set(element, {
+          value: element.style.getPropertyValue('font-size'),
+          priority: element.style.getPropertyPriority('font-size')
+        });
+      }
+    });
+
+    rootElement.style.setProperty('font-size', state.fontSize + '%', 'important');
+    bodyElement.style.setProperty('font-size', '1em', 'important');
+
+    baselineSizeMap.forEach(function (baselineSize, element) {
+      element.style.setProperty('font-size', (baselineSize * scaleFactor).toFixed(2) + 'px', 'important');
+    });
+
+    strongFontScaleRecords.forEach(function (_record, element) {
+      if (!element.isConnected) {
+        strongFontScaleRecords.delete(element);
+      }
+    });
+  }
+
+  function clearStrongFontScaling() {
+    if (strongFontScaleRecords.size === 0) {
+      return;
+    }
+
+    strongFontScaleRecords.forEach(function (record, element) {
+      if (!element.isConnected) {
+        return;
+      }
+
+      restoreFontSizeDeclaration(element.style, record.value, record.priority);
+    });
+
+    strongFontScaleRecords.clear();
+  }
+
+  function isStrongFontScaleCandidate(element) {
+    const tagName = element.tagName;
+
+    if (!tagName) {
+      return false;
+    }
+
+    if (tagName === 'SCRIPT' || tagName === 'STYLE' || tagName === 'NOSCRIPT' || tagName === 'LINK' || tagName === 'META') {
+      return false;
+    }
+
+    if (element.id === ROOT_ID) {
+      return false;
+    }
+
+    if (hostElement && (element === hostElement || hostElement.contains(element))) {
+      return false;
+    }
+
+    return true;
   }
 
   function syncHostThemeClasses() {
@@ -1080,6 +1180,7 @@ body.${PAGE_CLASSES.lineHeight} * {
     document.removeEventListener('mousemove', handlePointerMove);
     document.removeEventListener('touchmove', handleTouchMove);
 
+    clearStrongFontScaling();
     removePageClasses();
     restoreFontSizeDeclaration(document.documentElement.style, originalRootFontSize, originalRootFontSizePriority);
     restoreFontSizeDeclaration(document.body.style, originalBodyFontSize, originalBodyFontSizePriority);
@@ -1097,6 +1198,7 @@ body.${PAGE_CLASSES.lineHeight} * {
     shadowRootNode = null;
     elements = {};
     menuOpen = false;
+    strongFontScaleRecords = new Map();
     initialized = false;
     initScheduled = false;
     state = getDefaultState();

@@ -31,7 +31,7 @@ https://purge.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@main/accessibili
 You can keep it to one line and still customize the widget with data attributes:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@main/accessibility-toolbar.js" data-position="bottom-right" data-accent="#0f766e" data-storage-key="site-a11y" data-reading-band-size="150"></script>
+<script src="https://cdn.jsdelivr.net/gh/Arshad-Abdul/accessibility_button@main/accessibility-toolbar.js" data-position="bottom-right" data-accent="#0f766e" data-storage-key="site-a11y" data-reading-band-size="150" data-font-scale-mode="strong"></script>
 ```
 
 Supported attributes:
@@ -40,6 +40,9 @@ Supported attributes:
 - `data-accent="#0d9488"` for the launcher and action color
 - `data-storage-key="your-key"` to avoid collisions with another embed
 - `data-reading-band-size="130"` to adjust the reading overlay strip height
+- `data-font-scale-mode="normal"` (default) or `data-font-scale-mode="strong"` to force-scale stubborn fixed-size text
+
+Use `strong` mode only when needed for sites that still keep some text fixed during font scaling, because it applies a more aggressive fallback.
 
 ## Buy Me a Coffee
 
@@ -50,6 +53,7 @@ If this project helps you, you can support me here:
 ## Features
 
 - Font size controls from 80% to 200%
+- Optional strong font scaling mode for strict pixel-sized text
 - High contrast mode
 - Dark mode
 - Low vision mode
