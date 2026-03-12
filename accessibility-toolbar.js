@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const VERSION = '1.1.0';
+  const VERSION = '1.1.1';
   const ROOT_ID = 'atw-root';
   const GLOBAL_STYLE_ID = 'atw-global-style';
   const FONT_LINK_ID = 'atw-opendyslexic-font';
@@ -100,6 +100,9 @@
   let shadowRootNode = null;
   let menuOpen = false;
   let originalBodyFontSize = '';
+  let originalBodyFontSizePriority = '';
+  let originalRootFontSize = '';
+  let originalRootFontSizePriority = '';
   let elements = {};
 
   const scriptDatasetConfig = readScriptDataset();
@@ -914,12 +917,15 @@ body.${PAGE_CLASSES.lineHeight} * {
   }
 
   function applyState() {
+    const rootElement = document.documentElement;
     const bodyElement = document.body;
 
     if (state.fontSize === 100) {
-      bodyElement.style.fontSize = originalBodyFontSize;
+      restoreFontSizeDeclaration(rootElement.style, originalRootFontSize, originalRootFontSizePriority);
+      restoreFontSizeDeclaration(bodyElement.style, originalBodyFontSize, originalBodyFontSizePriority);
     } else {
-      bodyElement.style.fontSize = state.fontSize + '%';
+      rootElement.style.setProperty('font-size', state.fontSize + '%', 'important');
+      bodyElement.style.setProperty('font-size', '1em', 'important');
     }
 
     bodyElement.classList.toggle(PAGE_CLASSES.highContrast, state.highContrast);
@@ -947,6 +953,15 @@ body.${PAGE_CLASSES.lineHeight} * {
     }
 
     syncToggleUi();
+  }
+
+  function restoreFontSizeDeclaration(styleDeclaration, value, priority) {
+    if (value) {
+      styleDeclaration.setProperty('font-size', value, priority || '');
+      return;
+    }
+
+    styleDeclaration.removeProperty('font-size');
   }
 
   function syncHostThemeClasses() {
@@ -1021,7 +1036,10 @@ body.${PAGE_CLASSES.lineHeight} * {
       return;
     }
 
-    originalBodyFontSize = document.body.style.fontSize;
+    originalBodyFontSize = document.body.style.getPropertyValue('font-size');
+    originalBodyFontSizePriority = document.body.style.getPropertyPriority('font-size');
+    originalRootFontSize = document.documentElement.style.getPropertyValue('font-size');
+    originalRootFontSizePriority = document.documentElement.style.getPropertyPriority('font-size');
 
     injectGlobalStyles();
     buildWidget();
@@ -1063,7 +1081,8 @@ body.${PAGE_CLASSES.lineHeight} * {
     document.removeEventListener('touchmove', handleTouchMove);
 
     removePageClasses();
-    document.body.style.fontSize = originalBodyFontSize;
+    restoreFontSizeDeclaration(document.documentElement.style, originalRootFontSize, originalRootFontSizePriority);
+    restoreFontSizeDeclaration(document.body.style, originalBodyFontSize, originalBodyFontSizePriority);
 
     if (hostElement && hostElement.parentNode) {
       hostElement.parentNode.removeChild(hostElement);
